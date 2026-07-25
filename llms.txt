@@ -1,4 +1,4 @@
-# loancalctool
+# loancalctool.org
 
 Free online calculators and educational content. Not professional advice.
 
@@ -12,12 +12,6 @@ Free online calculators and educational content. Not professional advice.
 - Sitemap: https://loancalctool.org/sitemap.html
 
 ## Tools
-- Debt Consolidation Calculator — Compare & Save: https://loancalctool.org/tools/debt-consolidation.html
-- Interest Comparison Calculator — APR vs Simple Interest: https://loancalctool.org/tools/interest-comparison.html
-- Loan Payment Calculator — Monthly Payments & Amortization: https://loancalctool.org/tools/loan-payment.html
-- Payoff Timeline Calculator — When Will You Be Debt-Free?: https://loancalctool.org/tools/payoff-timeline.html
-- Prepayment Savings Calculator — How Much You Save by Paying Extra: https://loancalctool.org/tools/prepayment-savings.html
-- Total Cost Breakdown — Fees, Interest & Hidden Charges: https://loancalctool.org/tools/total-cost.html
 
 ## Articles
 - Student Loan Forgiveness Update 2026 (student-loan-forgiveness-update-2026) -- I logged into my student loan account last month and the balance made me blink. $4,127. Down from $28,000. I refreshed the page. Still $4,127. I called my servicer. "Sir, your loans were forgiven unde -- July 25, 2026
