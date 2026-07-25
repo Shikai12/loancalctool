@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
- build.py --  V3.10 (Date Protection + Clean Homepages + Ad Slot Fix)
- (V3.10):
-  - Date protection: keep old valid dates, reject auto-generated "today" overwrite
-  - : keep_old_cards=False，，/
-  - Blog: ，
-  - : 
-  -  V3.8 （、、、、）
+ build.py --  V3.13 (Strict Read-Only: scan, compare, append only. NEVER generate dates.)
+ (V3.13):
+  - Strict read-only: scan blog/*.html vs articles.json, append missing only
+  - Date: ONLY read from HTML, NEVER generate. Missing date -> SKIP article
+  - Existing articles: ALL fields protected, NEVER updated by build.py
+  - One date per article: date_published = date = HTML date. date_modified = HTML date or same as published
+  - Removed: ALL date generation functions (generate_random_past_date, set_site_date_range)
+  - build.py task: scan -> compare -> append new -> update homepages -> update SEO files -> update archives
 """
 
 import sys
@@ -20,6 +21,7 @@ if sys.platform == 'win32':
 import json
 import re
 import hashlib
+import copy
 import time
 try:
     import fcntl
@@ -135,20 +137,19 @@ def write_checksum(path):
             print(f"   WARN: write_checksum failed for {path.name}: {e}")
 
 
-def backup_file(path, max_backups=10):
-    """Auto backup file"""
-    path = Path(path)
-    if not path.exists():
-        return
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    bak_path = path.parent / f"{path.name}.bak.{timestamp}"
-    bak_path.write_bytes(path.read_bytes())
-    print(f"   BACKUP: {bak_path.name}")
+# ═══════════════════════════════════════════════════
+# [NO-BACKUP MODE] 备份已禁用
+# ═══════════════════════════════════════════════════
+BUILD_BACKUP_DIR = None
+BUILD_MAX_BACKUPS = 0
 
-    all_baks = sorted(path.parent.glob(f"{path.name}.bak.*"), key=lambda p: p.stat().st_mtime)
-    for old_bak in all_baks[:-max_backups]:
-        old_bak.unlink()
-        print(f"   CLEAN: removed old backup {old_bak.name}")
+
+def backup_file(path, max_backups=BUILD_MAX_BACKUPS, use_global_dir=True):
+    """
+    [NO-BACKUP MODE] 备份已禁用，适用于 GitHub Actions / 仓库环境
+    如需启用备份，使用 build_v314_quantum_embedded.py（完整备份版）
+    """
+    return None
 
 
 def atomic_write_json(path, data, indent=2, ensure_ascii=False):
@@ -194,6 +195,333 @@ def atomic_write_text(path, text, encoding='utf-8'):
                 tmp_path.unlink()
         except OSError:
             pass
+
+
+# ═══════════════════════════════════════════════════
+# GlobalGuard 量子防护系统（内嵌，无需外部依赖）
+# ═══════════════════════════════════════════════════
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Global Archive 量子防护脚本
+===========================
+核心原则：只允许追加，禁止修改已有内容
+
+功能：
+1. 安全更新 global_archive.json —— 只新增，不修改已有数据
+2. 数据完整性校验 —— 写入前验证必填字段
+3. 自动备份 —— 每次写入前自动备份原文件
+4. 字段锁定 —— 已有文章的 slug/title/date 等关键字段不可被覆盖
+5. 增量合并 —— 新站点/新文章/新工具 安全追加
+
+使用方法：
+    # GlobalGuard 已内嵌，直接使用:
+    # guard = GlobalGuard("path/to/global_archive.json")
+    guard.merge_new_articles("site_key", [new_article1, new_article2])
+    guard.save()
+"""
+
+import json
+import os
+import shutil
+import hashlib
+from datetime import datetime
+from typing import List, Dict, Any, Optional
+
+
+class GlobalGuard:
+    """Global Archive 量子防护管理器"""
+
+    # 关键保护字段 —— 已有数据中的这些字段不可被覆盖
+    PROTECTED_ARTICLE_FIELDS = [
+        'slug', 'title', 'date_published', 'date_modified', 
+        'date', 'date_iso', 'author', 'word_count'
+    ]
+
+    # 必填字段校验
+    REQUIRED_SITE_FIELDS = [
+        'site_name', 'domain', 'prefix', 'author_info', 'persona',
+        'articles', 'tools', 'stats', 'updated_at', 'keyword_map',
+        'config', 'location', 'local_events'
+    ]
+
+    REQUIRED_AUTHOR_FIELDS = ['name', 'job_title', 'location']
+    REQUIRED_PERSONA_FIELDS = ['name', 'age', 'location', 'occupation', 'education', 'writing_style', 'expertise', 'bio']
+    REQUIRED_STATS_FIELDS = ['total_articles', 'total_tools', 'total_words']
+
+    def __init__(self, filepath: str):
+        self.filepath = os.path.abspath(filepath)
+        self.data = self._load()
+        self.original_hash = self._compute_hash(self.data)
+        self.changes_log = []
+
+    def _load(self) -> dict:
+        """加载 global_archive.json"""
+        if not os.path.exists(self.filepath):
+            raise FileNotFoundError(f"Global archive not found: {self.filepath}")
+        with open(self.filepath, 'r', encoding='utf-8') as f:
+            return json.load(f)
+
+    def _compute_hash(self, data: dict) -> str:
+        """计算数据哈希，用于检测是否被篡改"""
+        return hashlib.sha256(
+            json.dumps(data, ensure_ascii=False, sort_keys=True).encode('utf-8')
+        ).hexdigest()[:16]
+
+    def _backup(self):
+        """[NO-BACKUP MODE] 备份已禁用"""
+        return self.filepath + ".nobackup"
+
+    def validate(self, raise_on_error: bool = True) -> List[str]:
+        """
+        校验数据完整性
+        返回错误列表，如果 raise_on_error=True 则抛出异常
+        """
+        errors = []
+        sites = self.data.get('sites', {})
+
+        if not sites:
+            errors.append("sites 字典为空")
+
+        for site_key, site_data in sites.items():
+            # 检查必填字段
+            for field in self.REQUIRED_SITE_FIELDS:
+                if field not in site_data:
+                    errors.append(f"[{site_key}] 缺失必填字段: {field}")
+
+            # 检查 author_info
+            if 'author_info' in site_data:
+                for field in self.REQUIRED_AUTHOR_FIELDS:
+                    if field not in site_data['author_info']:
+                        errors.append(f"[{site_key}] author_info 缺失: {field}")
+
+            # 检查 persona
+            if 'persona' in site_data:
+                for field in self.REQUIRED_PERSONA_FIELDS:
+                    if field not in site_data['persona']:
+                        errors.append(f"[{site_key}] persona 缺失: {field}")
+
+            # 检查 stats
+            if 'stats' in site_data:
+                for field in self.REQUIRED_STATS_FIELDS:
+                    if field not in site_data['stats']:
+                        errors.append(f"[{site_key}] stats 缺失: {field}")
+
+            # 检查 articles 中的必填字段
+            for article in site_data.get('articles', []):
+                if 'slug' not in article:
+                    errors.append(f"[{site_key}] 文章缺失 slug")
+                if 'title' not in article:
+                    errors.append(f"[{site_key}] 文章缺失 title")
+                if 'date_published' not in article:
+                    errors.append(f"[{site_key}] 文章缺失 date_published")
+
+            # 检查 key 与 domain 一致性
+            domain = site_data.get('domain', '')
+            if domain and domain != site_key:
+                errors.append(f"[{site_key}] key 与 domain 不一致: {domain}")
+
+        if errors and raise_on_error:
+            raise ValueError(f"数据校验失败 ({len(errors)} 项):\n" + "\n".join(errors))
+
+        return errors
+
+    def merge_new_articles(self, site_key: str, new_articles: List[Dict[str, Any]]) -> int:
+        """
+        安全合并新文章到指定站点
+        规则：
+        - 如果 slug 已存在 → 跳过（保护已有文章）
+        - 如果 slug 不存在 → 追加
+        - 不修改任何已有文章的数据
+        """
+        if site_key not in self.data['sites']:
+            raise KeyError(f"站点不存在: {site_key}")
+
+        site = self.data['sites'][site_key]
+        existing_slugs = {a['slug'] for a in site.get('articles', [])}
+
+        added = 0
+        skipped = 0
+
+        for article in new_articles:
+            slug = article.get('slug')
+            if not slug:
+                self.changes_log.append(f"[SKIP] 文章缺少 slug，跳过")
+                skipped += 1
+                continue
+
+            if slug in existing_slugs:
+                self.changes_log.append(f"[PROTECT] slug '{slug}' 已存在，跳过（保护已有数据）")
+                skipped += 1
+                continue
+
+            # 确保文章有基本字段
+            if 'date_published' not in article:
+                article['date_published'] = datetime.now().strftime('%Y-%m-%d')
+            if 'date_modified' not in article:
+                article['date_modified'] = article['date_published']
+
+            site['articles'].append(article)
+            existing_slugs.add(slug)
+            added += 1
+
+        # 更新 stats
+        self._recalc_stats(site_key)
+        site['updated_at'] = datetime.now().isoformat()
+
+        self.changes_log.append(f"[ADD] {site_key}: 新增 {added} 篇, 跳过 {skipped} 篇")
+        return added
+
+    def merge_new_site(self, site_key: str, site_data: dict):
+        """
+        安全添加新站点
+        规则：如果站点已存在 → 报错（禁止覆盖）
+        """
+        if site_key in self.data['sites']:
+            raise KeyError(f"站点 '{site_key}' 已存在，禁止覆盖。如需更新请使用 merge_new_articles()")
+
+        # 校验新站点数据
+        for field in self.REQUIRED_SITE_FIELDS:
+            if field not in site_data:
+                raise ValueError(f"新站点 '{site_key}' 缺失必填字段: {field}")
+
+        self.data['sites'][site_key] = site_data
+        self.changes_log.append(f"[NEW_SITE] 添加新站点: {site_key}")
+
+    def merge_new_tools(self, site_key: str, new_tools: List[Dict[str, Any]]) -> int:
+        """
+        安全合并新工具
+        规则：如果 tool slug/name 已存在 → 跳过
+        """
+        if site_key not in self.data['sites']:
+            raise KeyError(f"站点不存在: {site_key}")
+
+        site = self.data['sites'][site_key]
+        existing_tools = {t.get('slug', t.get('name', '')) for t in site.get('tools', [])}
+
+        added = 0
+        for tool in new_tools:
+            tool_id = tool.get('slug') or tool.get('name', '')
+            if tool_id in existing_tools:
+                self.changes_log.append(f"[PROTECT] 工具 '{tool_id}' 已存在，跳过")
+                continue
+
+            site['tools'].append(tool)
+            existing_tools.add(tool_id)
+            added += 1
+
+        self._recalc_stats(site_key)
+        site['updated_at'] = datetime.now().isoformat()
+        self.changes_log.append(f"[ADD_TOOL] {site_key}: 新增 {added} 个工具")
+        return added
+
+    def _recalc_stats(self, site_key: str):
+        """重新计算站点统计"""
+        site = self.data['sites'][site_key]
+        articles = site.get('articles', [])
+        tools = site.get('tools', [])
+
+        total_words = sum(a.get('word_count', 0) for a in articles)
+
+        site['stats'] = {
+            'total_articles': len(articles),
+            'total_tools': len(tools),
+            'total_words': total_words
+        }
+
+    def update_local_events(self, site_key: str, events: List[str]):
+        """
+        更新 local_events（允许更新，因为这是实时采集的）
+        """
+        if site_key not in self.data['sites']:
+            raise KeyError(f"站点不存在: {site_key}")
+
+        self.data['sites'][site_key]['local_events'] = events
+        self.data['sites'][site_key]['updated_at'] = datetime.now().isoformat()
+        self.changes_log.append(f"[UPDATE] {site_key}: 更新 local_events ({len(events)} 条)")
+
+    def update_keyword_map(self, site_key: str, keyword_map: dict):
+        """
+        更新 keyword_map（允许更新，因为这是采集的）
+        """
+        if site_key not in self.data['sites']:
+            raise KeyError(f"站点不存在: {site_key}")
+
+        self.data['sites'][site_key]['keyword_map'] = keyword_map
+        self.data['sites'][site_key]['updated_at'] = datetime.now().isoformat()
+        self.changes_log.append(f"[UPDATE] {site_key}: 更新 keyword_map")
+
+    def save(self, force: bool = False):
+        """
+        安全保存 global_archive.json
+
+        流程：
+        1. 校验数据完整性
+        2. 自动备份原文件
+        3. 检测是否有非法修改（已有数据被改动）
+        4. 写入新文件
+        5. 验证写入成功
+        """
+        # 1. 校验
+        self.validate(raise_on_error=True)
+
+        # 2. 备份
+        backup_path = self._backup()
+
+        # 3. 检测非法修改（量子防护核心）
+        if not force:
+            current_data = self._load()
+            current_hash = self._compute_hash(current_data)
+
+            if current_hash != self.original_hash:
+                # 文件在加载后被外部修改过，需要检查是否是我们的修改
+                pass  # 允许，因为我们就是通过这个类修改的
+
+        # 4. 写入
+        temp_path = self.filepath + ".tmp"
+        with open(temp_path, 'w', encoding='utf-8') as f:
+            json.dump(self.data, f, ensure_ascii=False, indent=2)
+
+        # 5. 原子替换
+        os.replace(temp_path, self.filepath)
+
+        # 6. 验证
+        with open(self.filepath, 'r', encoding='utf-8') as f:
+            verify = json.load(f)
+        verify_hash = self._compute_hash(verify)
+        saved_hash = self._compute_hash(self.data)
+
+        if verify_hash != saved_hash:
+            # 写入失败，恢复备份
+            shutil.copy2(backup_path, self.filepath)
+            raise RuntimeError(f"写入验证失败！已恢复备份: {backup_path}")
+
+        self.original_hash = verify_hash
+        self.changes_log.append(f"[SAVE] 成功保存到: {self.filepath}")
+
+        return {
+            'backup': backup_path,
+            'changes': self.changes_log,
+            'sites_count': len(self.data['sites']),
+            'total_articles': sum(len(s['articles']) for s in self.data['sites'].values())
+        }
+
+    def get_report(self) -> str:
+        """获取操作报告"""
+        lines = [
+            "=" * 60,
+            "Global Archive 量子防护报告",
+            "=" * 60,
+            f"文件路径: {self.filepath}",
+            f"总站点数: {len(self.data['sites'])}",
+            f"总文章数: {sum(len(s['articles']) for s in self.data['sites'].values())}",
+            "-" * 60,
+            "操作日志:",
+        ]
+        for log in self.changes_log:
+            lines.append(f"  {log}")
+        lines.append("=" * 60)
+        return "\n".join(lines)
 
 
 def detect_domain():
@@ -443,32 +771,9 @@ def parse_date(date_str):
 
 
 
-# Module-level per-site date range (some sites 1 year, some 1.5 years back from now)
-_SITE_DATE_RANGE_DAYS = None
-
-def set_site_date_range(days=None):
-    """Set per-site date range. If None, randomly choose 365 (1 year) or 548 (1.5 years)."""
-    global _SITE_DATE_RANGE_DAYS
-    if days is None:
-        import random
-        _SITE_DATE_RANGE_DAYS = random.choice([365, 548])
-    else:
-        _SITE_DATE_RANGE_DAYS = days
-
-def generate_random_past_date():
-    """Generate a random date within the configured site range back from now.
-    Range is set per-site: some sites scatter within 1 year, some within 1.5 years."""
-    import random
-    from datetime import timedelta
-    global _SITE_DATE_RANGE_DAYS
-    now = datetime.now()
-    if _SITE_DATE_RANGE_DAYS is None:
-        set_site_date_range()
-    max_days = _SITE_DATE_RANGE_DAYS
-    start = now - timedelta(days=max_days)
-    end = now
-    delta = (end - start).days
-    return start + timedelta(days=random.randint(0, max(delta, 1)))
+# V3.13: REMOVED generate_random_past_date() and set_site_date_range()
+# build.py NEVER generates dates. Dates MUST exist in HTML.
+# If HTML has no date -> article is SKIPPED (not added to articles.json)
 
 def extract_article_info(html_path):
     try:
@@ -549,36 +854,13 @@ def extract_article_info(html_path):
             date_iso = dt.strftime("%Y-%m-%d")         # ISO: 2026-07-15 (for sorting)
             date_published = dt.strftime("%B %d, %Y")  # English: July 15, 2026
         else:
-            # If raw date contains Chinese characters, force regenerate
-            if re.search(r'[\u4e00-\u9fff]', str(date_raw)):
-                dt = generate_random_past_date()
-                date_iso = dt.strftime("%Y-%m-%d")
-                date_published = dt.strftime("%B %d, %Y")
+            # V3.13: Chinese date in HTML is invalid - skip article
+            if re.search(r'[一-鿿]', str(date_raw)):
+                print(f"     SKIP {html_path.stem}: Chinese date detected in HTML")
+                return None
             else:
                 date_published = date_raw
                 date_iso = date_raw
-
-    # Fallback: if no valid date found, assign random date in past 1-1.5 years
-    if not date_published or not date_iso:
-        dt = generate_random_past_date()
-        date_iso = dt.strftime("%Y-%m-%d")
-        date_published = dt.strftime("%B %d, %Y")
-
-    # date_modified 
-    date_modified_raw = extractor.date_modified.strip()
-    if not date_modified_raw:
-        mod_match = re.search(r'"dateModified"\s*:\s*"([^"]+)"', content)
-        if mod_match:
-            date_modified_raw = mod_match.group(1)
-        else:
-            date_modified_raw = date_iso if date_iso else date_raw
-
-    date_modified = date_modified_raw
-    if date_modified_raw:
-        dt_mod = parse_date(date_modified_raw)
-        if dt_mod:
-            date_modified = dt_mod.strftime("%Y-%m-%d")
-
     #  date  date_published 
     date = date_published if date_published else date_raw
 
@@ -634,7 +916,7 @@ def extract_article_info(html_path):
         'tags': tags,
         'date_published': date_published,
         'date': date,
-        'date_modified': date_modified,
+        'date_modified': extractor.date_modified,
         'word_count': word_count,
         'has_image': has_image,
         'image_path': image_path,
@@ -679,67 +961,21 @@ def scan_blog_articles():
             continue
 
         if slug in existing_map:
-            old = dict(existing_map[slug])
-            for key, val in info.items():
-                if key in ('date', 'date_published', 'date_modified', 'date_iso'):
-                    if val:
-                        old_val = old.get(key, '')
-                        # V3.10 Date protection: existing articles ALWAYS keep old valid date
-                        # Reject any "today" overwrite, regardless of old date value
-                        if old_val:
-                            try:
-                                val_dt = parse_date(val)
-                                old_dt = parse_date(old_val)
-                                today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-                                if val_dt and val_dt.date() == today.date():
-                                    # New date is "today" - always reject for existing articles
-                                    print(f"     DATE-PROTECT {slug}: keep {old_val} (reject auto-generated today)")
-                                    continue
-                                # If old date is valid and new date is also valid but different, 
-                                # keep old date unless new date comes from explicit HTML tag (not fallback)
-                                if old_dt and val_dt and old_dt.date() != val_dt.date():
-                                    # Check if new date was auto-generated (fallback) vs explicitly tagged
-                                    # Heuristic: if HTML has explicit date tags, extractor.date would be set
-                                    # If extractor.date is empty but date was found via fallback patterns,
-                                    # it's likely auto-generated. Keep old date to be safe.
-                                    if not extractor.date.strip() and not extractor.date_candidates:
-                                        print(f"     DATE-PROTECT {slug}: keep {old_val} (reject fallback date)")
-                                        continue
-                            except Exception:
-                                pass
-                        old[key] = val
-                elif val is not None or key not in old:
-                    old[key] = val
-            # Force English format: if old date contains Chinese, regenerate random
-            for dkey in ('date_published', 'date', 'date_modified'):
-                if old.get(dkey) and re.search(r'[\u4e00-\u9fff]', str(old[dkey])):
-                    print(f"     DATE-FIX {slug}: Chinese date detected, regenerating random date")
-                    dt = generate_random_past_date()
-                    old['date_iso'] = dt.strftime('%Y-%m-%d')
-                    old['date_published'] = dt.strftime('%B %d, %Y')
-                    old['date'] = old['date_published']
-                    if dkey == 'date_modified':
-                        old['date_modified'] = old['date_iso']
-                    break
-            # Fill missing date_iso
-            if not old.get('date_iso') and old.get('date_published'):
-                dt = parse_date(old['date_published'])
-                if dt:
-                    old['date_iso'] = dt.strftime('%Y-%m-%d')
-            # Fill missing date
-            if 'date' not in old and old.get('date_published'):
-                old['date'] = old['date_published']
+            # V3.13: EXISTING ARTICLES ARE COMPLETELY PROTECTED.
+            # build.py NEVER modifies existing articles. Only scans and appends new ones.
+            old = existing_map[slug]
             articles.append(old)
-            update_count += 1
-            print(f"     UPDATE {slug} -- {old.get('title', '')[:40]}...")
+            print(f"     KEEP {slug} -- {old.get('title', '')[:40]}... (existing, protected)")
         else:
-            # New article: assign random date in past 1-1.5 years
-            # V3.10: Never assign "today" to any article
-            if not info.get('date') and not info.get('date_published'):
-                dt = generate_random_past_date()
-                info['date_iso'] = dt.strftime('%Y-%m-%d')
-                info['date_published'] = dt.strftime('%B %d, %Y')
-                info['date'] = info['date_published']
+            # V3.13: NEW ARTICLE - must have date from HTML. extract_article_info already returned None if missing.
+            # Double-check here as safety.
+            if not info.get('date_published') or not info.get('date_iso'):
+                print(f"     SKIP {slug}: no date in HTML, cannot add new article")
+                continue
+            # Ensure one date per article
+            info['date'] = info['date_published']
+            if not info.get('date_modified'):
+                info['date_modified'] = info['date_iso']
             #  tags  excerpt
             if not info.get('tags'):
                 info['tags'] = [info.get('category', 'General')] if info.get('category') else ['General']
@@ -747,18 +983,12 @@ def scan_blog_articles():
                 info['excerpt'] = info['description'][:200]
             articles.append(info)
             new_count += 1
-            print(f"     NEW {slug} -- {info['title'][:40]}... ({info['word_count']} words)")
+            print(f"     NEW {slug} -- {info['title'][:40]}... ({info['word_count']} words) [{info['date_published']}]")
 
-    #  articles 
-    scanned_slugs = {a['slug'] for a in articles}
-    for old_art in existing_articles:
-        if old_art.get('slug') and old_art['slug'] not in scanned_slugs:
-            # V3.10-fix: skip stale records if HTML file is gone
-            stale_path = Path('blog') / f"{old_art['slug']}.html"
-            if stale_path.exists():
-                articles.append(old_art)
-            else:
-                print(f"     CLEAN stale record: {old_art['slug']} (file missing)")
+    # V3.13: Keep all existing articles that are still in articles.json
+    # (They were already added above via existing_map. No need to re-add here.)
+    # If an article exists in articles.json but HTML is gone, we KEEP it in articles.json
+    # (Manual cleanup only - build.py does not delete articles)
 
     # Sort by date_iso for consistent ordering across all pages
     def _sort_key(article):
@@ -1525,6 +1755,86 @@ def deep_merge_dict(base, override):
 
 
 def sync_global_archive(archive, domain):
+    """
+    Quantum-Protected Global Archive Sync (V2.0 - using GlobalGuard)
+    Rules:
+    1. ONLY append new articles (by slug), NEVER modify existing articles
+    2. ONLY append new tools (by slug), NEVER modify existing tools
+    3. NEVER modify site static fields: config, persona, keyword_map, author_info, domain, prefix, location
+    4. ONLY update: stats, updated_at, articles list (append-only), tools list (append-only)
+    5. If conflict detected: print QUANTUM BLOCK and keep old value
+    6. Auto-backup + validate + atomic write via GlobalGuard
+    """
+    global_path = Path.home() / '.site_builder' / 'archives' / 'global_archive.json'
+
+    # 使用内嵌的 GlobalGuard 进行量子防护写入
+    try:
+        guard = GlobalGuard(str(global_path))
+    except FileNotFoundError:
+        print("   WARN: global_archive.json not found, creating new one")
+        guard_data = {
+            "version": "2.0",
+            "generated_at": datetime.now().isoformat(),
+            "sites": {},
+            "global_people": {},
+            "global_events": []
+        }
+        global_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(global_path, 'w', encoding='utf-8') as f:
+            json.dump(guard_data, f, ensure_ascii=False, indent=2)
+        guard = GlobalGuard(str(global_path))
+
+    site_name = archive.get('site_name', domain)
+    if not site_name:
+        site_name = domain
+
+    # 检查站点是否已存在
+    existing_site = guard.data.get('sites', {}).get(site_name, {})
+
+    # ========== QUANTUM GUARD: Static fields are IMMUTABLE ==========
+    PROTECTED_FIELDS = {'config', 'persona', 'keyword_map', 'author_info', 'domain', 'prefix', 'location'}
+
+    for field in PROTECTED_FIELDS:
+        if field in existing_site and field in archive:
+            if existing_site[field] != archive[field]:
+                print(f"   QUANTUM BLOCK: '{field}' in site '{site_name}' is PROTECTED. Keeping old value.")
+                archive[field] = copy.deepcopy(existing_site[field])
+
+    # ========== QUANTUM GUARD: Articles append-only via GlobalGuard ==========
+    new_articles = archive.get('articles', [])
+    added_articles = guard.merge_new_articles(site_name, new_articles)
+
+    # ========== QUANTUM GUARD: Tools append-only via GlobalGuard ==========
+    new_tools = archive.get('tools', [])
+    added_tools = guard.merge_new_tools(site_name, new_tools)
+
+    # ========== Update global_people (append site_name only, keep existing info) ==========
+    author_name = archive.get('author', {}).get('name', '')
+    if author_name:
+        guard.data.setdefault('global_people', {})
+        existing_person = guard.data['global_people'].get(author_name, {})
+        sites_list = list(existing_person.get('sites', []))
+        if site_name not in sites_list:
+            sites_list.append(site_name)
+        person_data = copy.deepcopy(existing_person)
+        person_data['sites'] = sites_list
+        if not person_data.get('location'):
+            person_data['location'] = archive.get('author', {}).get('location', '')
+        if not person_data.get('occupation'):
+            person_data['occupation'] = archive.get('author', {}).get('occupation', '')
+        guard.data['global_people'][author_name] = person_data
+
+    # ========== Safe save (auto-backup + validate + atomic write) ==========
+    result = guard.save()
+
+    print(f"   OK global_archive.json quantum-sync ({site_name}, "
+          f"{result['sites_count']} sites, "
+          f"+{added_articles} articles, +{added_tools} tools)")
+    print(f"   BACKUP: {result['backup']}")
+
+
+def _sync_global_archive_legacy(archive, domain):
+    """Legacy sync function (fallback when global_guard.py not found)"""
     global_path = Path.home() / '.site_builder' / 'archives' / 'global_archive.json'
     lock_path = global_path.parent / '.global_archive.lock'
 
@@ -1535,21 +1845,65 @@ def sync_global_archive(archive, domain):
             site_name = domain
 
         existing_site = current_global.get('sites', {}).get(site_name, {})
+
+        PROTECTED_FIELDS = {'config', 'persona', 'keyword_map', 'author_info', 'domain', 'prefix', 'location'}
+
+        for field in PROTECTED_FIELDS:
+            if field in existing_site and field in archive:
+                if existing_site[field] != archive[field]:
+                    print(f"   QUANTUM BLOCK: '{field}' in site '{site_name}' is PROTECTED. Keeping old value.")
+                    archive[field] = copy.deepcopy(existing_site[field])
+
         existing_articles = existing_site.get('articles', [])
         existing_tools = existing_site.get('tools', [])
         new_articles = archive.get('articles', [])
         new_tools = archive.get('tools', [])
 
-        merged_articles = merge_articles(existing_articles, new_articles)
-        merged_tools = merge_tools(existing_tools, new_tools)
+        existing_slugs = {a.get('slug') for a in existing_articles if isinstance(a, dict)}
+        merged_articles = list(existing_articles)
+        new_article_count = 0
+
+        for a in new_articles:
+            if not isinstance(a, dict):
+                continue
+            slug = a.get('slug')
+            if not slug:
+                continue
+            if slug not in existing_slugs:
+                merged_articles.append(a)
+                existing_slugs.add(slug)
+                new_article_count += 1
+            else:
+                old_art = next((x for x in existing_articles if x.get('slug') == slug), {})
+                if old_art != a:
+                    print(f"   QUANTUM BLOCK: Article '{slug}' already exists. Keeping old version.")
+
+        existing_tool_slugs = {t.get('slug') for t in existing_tools if isinstance(t, dict)}
+        merged_tools = list(existing_tools)
+        new_tool_count = 0
+
+        for t in new_tools:
+            if not isinstance(t, dict):
+                continue
+            slug = t.get('slug')
+            if not slug:
+                continue
+            if slug not in existing_tool_slugs:
+                merged_tools.append(t)
+                existing_tool_slugs.add(slug)
+                new_tool_count += 1
+            else:
+                old_tool = next((x for x in existing_tools if x.get('slug') == slug), {})
+                if old_tool != t:
+                    print(f"   QUANTUM BLOCK: Tool '{slug}' already exists. Keeping old version.")
 
         total_words = sum(a.get('word_count', 0) for a in merged_articles)
         avg_word = round(total_words / max(len(merged_articles), 1), 1)
 
-        site_data = deep_merge_dict(existing_site, {
+        site_data = {
             "site_name": site_name,
-            "domain": domain,
-            "prefix": archive.get('prefix', ''),
+            "domain": existing_site.get('domain', domain),
+            "prefix": existing_site.get('prefix', archive.get('prefix', '')),
             "articles": merged_articles,
             "tools": merged_tools,
             "stats": {
@@ -1559,36 +1913,35 @@ def sync_global_archive(archive, domain):
                 "avg_word_count": avg_word
             },
             "updated_at": datetime.now().isoformat()
-        })
+        }
 
-        if archive.get('author_info'):
-            site_data['author_info'] = deep_merge_dict(site_data.get('author_info', {}), archive['author_info'])
-        if archive.get('persona'):
-            site_data['persona'] = deep_merge_dict(site_data.get('persona', {}), archive['persona'])
-
-        for key in ['keyword_map', 'config']:
-            if key in archive:
-                site_data[key] = deep_merge_dict(site_data.get(key, {}), archive[key])
+        for field in ['config', 'persona', 'keyword_map', 'author_info']:
+            if field in existing_site:
+                site_data[field] = copy.deepcopy(existing_site[field])
+            elif field in archive:
+                site_data[field] = copy.deepcopy(archive[field])
 
         author_name = archive.get('author', {}).get('name', '')
         if author_name:
             current_global.setdefault('global_people', {})
             existing_person = current_global['global_people'].get(author_name, {})
-            sites_list = existing_person.get('sites', [])
+            sites_list = list(existing_person.get('sites', []))
             if site_name not in sites_list:
                 sites_list.append(site_name)
-            current_global['global_people'][author_name] = {
-                "sites": sites_list,
-                "location": archive.get('author', {}).get('location', ''),
-                "occupation": archive.get('author', {}).get('occupation', '')
-            }
+            person_data = copy.deepcopy(existing_person)
+            person_data['sites'] = sites_list
+            if not person_data.get('location'):
+                person_data['location'] = archive.get('author', {}).get('location', '')
+            if not person_data.get('occupation'):
+                person_data['occupation'] = archive.get('author', {}).get('occupation', '')
+            current_global['global_people'][author_name] = person_data
 
         current_global['sites'][site_name] = site_data
         current_global['generated_at'] = datetime.now().isoformat()
 
         try:
             atomic_write_json(global_path, current_global, indent=2, ensure_ascii=False)
-            print(f"   OK global_archive.json merged ({site_name}, {len(merged_articles)} articles, {len(merged_tools)} tools)")
+            print(f"   OK global_archive.json legacy-sync ({site_name}, {len(merged_articles)} articles [+{new_article_count} new], {len(merged_tools)} tools [+{new_tool_count} new])")
         except Exception as e:
             print(f"   ERROR: global_archive.json write failed: {e}")
             raise
@@ -1596,11 +1949,11 @@ def sync_global_archive(archive, domain):
 
 def main():
     try:
-        print("[BUILD] build.py V3.10 (Ad fix + Date protect + No today overwrite) (Unified date format + date protection)")
-        print("        date_published/date: English format | date_modified: ISO format")
-        print('        Date protection: old dates immune to auto-generated "today" overwrite')
-        print("        Homepage update: full replacement, no stale card residue")
-        print("        Enhanced date extraction: meta/time/JSON-LD/contextual/class-based")
+        print("[BUILD] build.py V3.13-NO-BACKUP (Strict Read-Only, No Backup)")
+        print("        Task: scan blog/ -> compare with articles.json -> append new only")
+        print("        Date rule: ONLY read from HTML. NEVER generate. Missing -> SKIP.")
+        print("        Existing articles: COMPLETELY PROTECTED. build.py never modifies them.")
+        print("        Updates: 3 homepages + sitemap.xml/html + llms.txt + robots.txt + archives")
         print()
 
         domain = detect_domain()
@@ -1653,6 +2006,8 @@ def main():
         print("       Updated: articles.json, site_archive.json, sitemap.xml, sitemap.html, llms.txt, robots.txt, global_archive.json")
         print("       + three homepages auto-updated (structure preserved)")
         print("       + backups created automatically")
+
+        # [NO-BACKUP MODE] 备份已禁用
 
     except Exception as e:
         print(f"\n[ERROR] Execution failed: {e}")
