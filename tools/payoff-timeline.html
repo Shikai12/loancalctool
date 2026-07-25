@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payoff Timeline Calculator — When Will You Be Debt-Free?</title>
+  <meta name="description" content="Find your exact loan payoff date. See how extra payments accelerate your freedom. No sign-up. All data stays in your browser.">
+  <meta name="author" content="James Whitmore">
+  <link rel="canonical" href="https://loancalctool.org/tools/payoff-timeline.html">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <meta property="og:title" content="Payoff Timeline Calculator — When Will You Be Debt-Free?">
+  <meta property="og:description" content="Find your exact loan payoff date. See how extra payments accelerate your freedom.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://loancalctool.org/tools/payoff-timeline.html">
+  <meta property="og:image" content="https://loancalctool.org/images/og-default.jpg">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Payoff Timeline Calculator">
+  <meta name="twitter:description" content="Find your exact loan payoff date.">
+  <meta name="twitter:image" content="https://loancalctool.org/images/og-default.jpg">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Payoff Timeline Calculator",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Any",
+    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+    "author": {"@type": "Person", "name": "James Whitmore", "url": "https://loancalctool.org/about.html"}
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://loancalctool.org/"},
+      {"@type": "ListItem", "position": 2, "name": "Tools", "item": "https://loancalctool.org/tools/"},
+      {"@type": "ListItem", "position": 3, "name": "Payoff Timeline", "item": "https://loancalctool.org/tools/payoff-timeline.html"}
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .lct-tool-layout-d { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+    @media (max-width: 768px) { .lct-tool-layout-d { grid-template-columns: 1fr; } }
+    .lct-timeline-bar { display: flex; height: 32px; border-radius: 16px; overflow: hidden; margin: 8px 0; background: var(--lct-border); }
+    .lct-timeline-bar div { height: 100%; }
+    .lct-timeline-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--lct-text-light); }
+    .lct-milestone { background: var(--lct-card-bg); border-radius: var(--lct-radius); padding: 16px 20px; border-left: 4px solid var(--lct-primary); margin-bottom: 12px; }
+    .lct-milestone h4 { font-size: 15px; margin-bottom: 4px; }
+    .lct-milestone p { font-size: 13px; color: var(--lct-text-light); margin: 0; }
+    .lct-scenario-card { background: var(--lct-card-bg); border-radius: var(--lct-radius); padding: 20px; border: 1px solid var(--lct-border); margin-bottom: 16px; }
+    .lct-scenario-card h4 { font-size: 16px; margin-bottom: 12px; color: var(--lct-primary); }
+    .lct-scenario-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; border-bottom: 1px solid var(--lct-border); }
+    .lct-scenario-row:last-child { border-bottom: none; font-weight: 700; color: var(--lct-primary); }
+  </style>
+</head>
+<body>
+
+  <header class="lct-header">
+    <nav class="lct-nav">
+      <a href="../index.html" class="lct-logo">Loan Calc Tool</a>
+      <button class="lct-menu-toggle" aria-label="Toggle menu" onclick="document.querySelector('.lct-nav-links').classList.toggle('active')">☰</button>
+      <div class="lct-nav-links">
+        <a href="../index.html">Home</a>
+        <a href="../tools/index.html">Tools</a>
+        <a href="../blog/index.html">Blog</a>
+        <a href="../about.html">About</a>
+        <a href="../contact.html">Contact</a>
+        <a href="../faq.html">FAQ</a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="lct-breadcrumb lct-container">
+    <a href="../index.html">Home</a><span>/</span><a href="../tools/index.html">Tools</a><span>/</span><span>Payoff Timeline</span>
+  </div>
+
+  <div class="lct-ad-slot" data-ad-slot="tool_top">
+    <div class="ad-placeholder">Tool Top Ad — Loading...</div>
+  </div>
+
+  <main class="lct-container" style="padding: 40px 0;">
+    <div class="lct-tool-page">
+      <div class="lct-tool-page-header">
+        <h1 class="lct-tool-page-title">Payoff Timeline Calculator</h1>
+        <p class="lct-tool-page-desc">Enter your current balance, rate, and payment. See your exact payoff date and how extra payments change everything.</p>
+      </div>
+
+      <div class="lct-tool-layout-d">
+        <div>
+          <div class="lct-form-group">
+            <label class="lct-form-label">Current Balance ($)</label>
+            <input type="number" class="lct-form-input" id="pt-balance" placeholder="15000" min="100" step="100">
+          </div>
+          <div class="lct-form-row">
+            <div class="lct-form-group">
+              <label class="lct-form-label">Interest Rate (% APR)</label>
+              <input type="number" class="lct-form-input" id="pt-rate" placeholder="11.5" min="0.1" step="0.1">
+            </div>
+            <div class="lct-form-group">
+              <label class="lct-form-label">Monthly Payment ($)</label>
+              <input type="number" class="lct-form-input" id="pt-payment" placeholder="350" min="10" step="10">
+            </div>
+          </div>
+          <div class="lct-form-group">
+            <label class="lct-form-label">Extra Monthly Payment ($)</label>
+            <input type="number" class="lct-form-input" id="pt-extra" placeholder="0" min="0" step="10">
+          </div>
+          <button class="lct-btn-calculate" onclick="calculatePayoff()">Calculate Payoff</button>
+          <button class="lct-btn-small lct-btn-delete" style="margin-top: 12px; width: 100%;" onclick="resetPayoff()">Reset / Clear</button>
+        </div>
+
+        <div>
+          <div class="lct-results" id="pt-results">
+            <div class="lct-result-grid">
+              <div class="lct-result-card">
+                <div class="lct-result-value" id="pt-res-months">0</div>
+                <div class="lct-result-label">Months to Payoff</div>
+              </div>
+              <div class="lct-result-card">
+                <div class="lct-result-value" id="pt-res-date">—</div>
+                <div class="lct-result-label">Payoff Date</div>
+              </div>
+              <div class="lct-result-card">
+                <div class="lct-result-value" id="pt-res-interest">$0</div>
+                <div class="lct-result-label">Total Interest</div>
+              </div>
+              <div class="lct-result-card">
+                <div class="lct-result-value" id="pt-res-saved">$0</div>
+                <div class="lct-result-label">Interest Saved</div>
+              </div>
+            </div>
+            <div class="lct-chart-container">
+              <canvas id="pt-chart" width="400" height="250"></canvas>
+            </div>
+            <div style="margin-top: 16px;">
+              <button class="lct-btn-small lct-btn-export" onclick="exportPayoff()">Export Report</button>
+              <button class="lct-btn-small lct-btn-compare" style="margin-left: 8px;" onclick="savePayoff()">Save to History</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="pt-scenarios" style="display:none; margin-top: 32px;">
+        <h3 style="margin-bottom: 16px;">Scenario Comparison</h3>
+        <div class="lct-scenario-card" id="pt-scen-base">
+          <h4>Current Plan</h4>
+          <div class="lct-scenario-row"><span>Payoff Date</span><span id="pt-s-base-date">—</span></div>
+          <div class="lct-scenario-row"><span>Total Interest</span><span id="pt-s-base-interest">$0</span></div>
+          <div class="lct-scenario-row"><span>Total Cost</span><span id="pt-s-base-total">$0</span></div>
+        </div>
+        <div class="lct-scenario-card" id="pt-scen-extra">
+          <h4>With Extra Payment</h4>
+          <div class="lct-scenario-row"><span>Payoff Date</span><span id="pt-s-extra-date">—</span></div>
+          <div class="lct-scenario-row"><span>Total Interest</span><span id="pt-s-extra-interest">$0</span></div>
+          <div class="lct-scenario-row"><span>Total Cost</span><span id="pt-s-extra-total">$0</span></div>
+          <div class="lct-scenario-row"><span>Interest Saved</span><span id="pt-s-extra-saved">$0</span></div>
+        </div>
+      </div>
+
+      <div class="lct-tool-history" id="pt-history" style="display:none; margin-top: 32px;">
+        <h3>History</h3>
+        <div id="pt-history-list"></div>
+      </div>
+    </div>
+  </main>
+
+  <div class="lct-container">
+    <div class="lct-ad-slot" data-ad-slot="tool_bottom">
+      <div class="ad-placeholder">Tool Bottom Ad — Loading...</div>
+    </div>
+  </div>
+
+
+  <section class="lct-container" style="padding-bottom: 40px;">
+    <div class="lct-tool-page" style="max-width: 800px; margin: 0 auto;">
+      <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 16px; color: var(--lct-text);">How It Works</h2>
+      <div style="font-size: 16px; line-height: 1.8; color: var(--lct-text-light);">
+        <p>Enter your current balance, APR, and monthly payment. The calculator simulates month-by-month payoff until your balance reaches zero. It also runs a second simulation with your extra payment to show you the exact payoff date and interest saved.</p>
+<p><strong>Practical tip:</strong> Even small extra payments create a snowball effect. An extra $50/month on a $15,000 loan at 11% can cut 8 months off your term and save $600+ in interest. The scenario cards show you the difference at a glance.</p>
+<p><strong>Privacy note:</strong> All calculations happen in your browser. Nothing is sent to our servers.</p>
+      </div>
+    </div>
+  </section>
+  <section class="lct-container" style="padding-bottom: 60px;">
+      <!-- Tool Middle Ad -->
+  <div class="lct-container">
+    <div class="lct-ad-slot" id="tool_middle" data-ad-slot="tool_middle">
+      <div class="ad-placeholder">Tool Middle Ad — Loading...</div>
+    </div>
+  </div>
+
+<h2 class="lct-section-title">Related Articles</h2>
+    <div class="lct-article-grid" id="pt-related"></div>
+  </section>
+
+  <footer class="lct-footer">
+    <div class="lct-footer-grid">
+      <div class="lct-footer-col">
+        <h4>Tools</h4>
+        <ul>
+          <li><a href="../tools/loan-payment.html">Loan Payment</a></li>
+          <li><a href="../tools/interest-comparison.html">Interest Comparison</a></li>
+          <li><a href="../tools/total-cost.html">Total Cost</a></li>
+          <li><a href="../tools/payoff-timeline.html">Payoff Timeline</a></li>
+          <li><a href="../tools/prepayment-savings.html">Prepayment Savings</a></li>
+          <li><a href="../tools/debt-consolidation.html">Debt Consolidation</a></li>
+        </ul>
+      </div>
+      <div class="lct-footer-col">
+        <h4>Pages</h4>
+        <ul>
+          <li><a href="../about.html">About Us</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+          <li><a href="../faq.html">FAQ</a></li>
+          <li><a href="../privacy.html">Privacy Policy</a></li>
+          <li><a href="../terms.html">Terms of Use</a></li>
+          <li><a href="../disclaimer.html">Disclaimer</a></li>
+          <li><a href="../disclosure.html">Disclosure</a></li>
+          <li><a href="../sitemap.html">Sitemap</a></li>
+        </ul>
+      </div>
+      <div class="lct-footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../tools/index.html">Tools</a></li>
+          <li><a href="../blog/index.html">Blog</a></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+          <li><a href="../faq.html">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="lct-footer-copy">
+      <p>Copyright 2026 Loan Calc Tool. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../ads-loader.js"></script>
+  <script>
+  (function(){
+    var STORAGE_KEY = 'lct_payoff_timeline_history';
+    var currentResult = null;
+
+    function fmt(n){ return '$' + n.toLocaleString('en-US', {maximumFractionDigits: 0}); }
+    function fmt2(n){ return '$' + n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
+
+    function simulate(balance, rate, payment, extra){
+      var r = rate / 100 / 12;
+      var b = balance, months = 0, totalInterest = 0;
+      var balances = [];
+      while(b > 0.01 && months < 600){
+        months++;
+        var interest = b * r;
+        var principal = payment + extra - interest;
+        if(principal > b) { principal = b; }
+        b -= principal;
+        totalInterest += interest;
+        balances.push(Math.max(0, b));
+      }
+      return { months: months, totalInterest: totalInterest, balances: balances };
+    }
+
+    window.calculatePayoff = function(){
+      var balance = parseFloat(document.getElementById('pt-balance').value) || 0;
+      var rate = parseFloat(document.getElementById('pt-rate').value) || 0;
+      var payment = parseFloat(document.getElementById('pt-payment').value) || 0;
+      var extra = parseFloat(document.getElementById('pt-extra').value) || 0;
+      if(balance <= 0 || payment <= 0) return;
+
+      var base = simulate(balance, rate, payment, 0);
+      var withExtra = simulate(balance, rate, payment, extra);
+      var saved = base.totalInterest - withExtra.totalInterest;
+      var now = new Date();
+      var baseDate = new Date(now.getFullYear(), now.getMonth() + base.months, 1);
+      var extraDate = new Date(now.getFullYear(), now.getMonth() + withExtra.months, 1);
+
+      document.getElementById('pt-res-months').textContent = withExtra.months;
+      document.getElementById('pt-res-date').textContent = extraDate.toLocaleDateString('en-US', {month: 'short', year: 'numeric'});
+      document.getElementById('pt-res-interest').textContent = fmt2(withExtra.totalInterest);
+      document.getElementById('pt-res-saved').textContent = fmt2(saved);
+      document.getElementById('pt-results').classList.add('active');
+
+      document.getElementById('pt-s-base-date').textContent = baseDate.toLocaleDateString('en-US', {month: 'short', year: 'numeric'});
+      document.getElementById('pt-s-base-interest').textContent = fmt2(base.totalInterest);
+      document.getElementById('pt-s-base-total').textContent = fmt2(balance + base.totalInterest);
+      document.getElementById('pt-s-extra-date').textContent = extraDate.toLocaleDateString('en-US', {month: 'short', year: 'numeric'});
+      document.getElementById('pt-s-extra-interest').textContent = fmt2(withExtra.totalInterest);
+      document.getElementById('pt-s-extra-total').textContent = fmt2(balance + withExtra.totalInterest);
+      document.getElementById('pt-s-extra-saved').textContent = fmt2(saved);
+      document.getElementById('pt-scenarios').style.display = 'block';
+
+      currentResult = { balance: balance, rate: rate, payment: payment, extra: extra, months: withExtra.months, baseMonths: base.months, interest: withExtra.totalInterest, saved: saved, baseDate: baseDate.toLocaleDateString(), extraDate: extraDate.toLocaleDateString(), date: new Date().toLocaleDateString() };
+
+      drawChart(base.balances, withExtra.balances);
+    };
+
+    function drawChart(baseBalances, extraBalances){
+      var canvas = document.getElementById('pt-chart');
+      var ctx = canvas.getContext('2d');
+      var w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      var maxM = Math.max(baseBalances.length, extraBalances.length);
+      if(maxM === 0) return;
+      var maxB = Math.max.apply(null, baseBalances.concat(extraBalances));
+      if(maxB === 0) return;
+      var stepX = (w - 40) / maxM;
+      var scaleY = (h - 60) / maxB;
+
+      ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(20, h - 30); ctx.lineTo(w - 20, h - 30); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(20, 20); ctx.lineTo(20, h - 30); ctx.stroke();
+
+      ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2; ctx.beginPath();
+      baseBalances.forEach(function(b, i){ var x = 20 + i * stepX; var y = h - 30 - b * scaleY; if(i===0) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
+      ctx.stroke();
+
+      ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 2; ctx.beginPath();
+      extraBalances.forEach(function(b, i){ var x = 20 + i * stepX; var y = h - 30 - b * scaleY; if(i===0) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
+      ctx.stroke();
+
+      ctx.fillStyle = '#64748b'; ctx.font = '12px sans-serif';
+      ctx.fillText('Orange = Current Plan | Blue = With Extra Payment', 20, 16);
+    }
+
+    window.savePayoff = function(){
+      if(!currentResult) return;
+      var hist = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      hist.unshift(currentResult);
+      if(hist.length > 10) hist.pop();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(hist));
+      renderHistory();
+    };
+
+    function renderHistory(){
+      var hist = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      var el = document.getElementById('pt-history');
+      var list = document.getElementById('pt-history-list');
+      if(hist.length === 0){ el.style.display = 'none'; return; }
+      el.style.display = 'block';
+      var html = '';
+      hist.forEach(function(h, i){
+        html += '<div class="lct-history-card"><h4>#' + (i+1) + ' — ' + h.date + '</h4><p>Balance: ' + fmt(h.balance) + ' @ ' + h.rate + '% | Payoff: ' + h.extraDate + ' | Saved: ' + fmt2(h.saved) + '</p></div>';
+      });
+      list.innerHTML = html;
+    }
+
+    window.resetPayoff = function(){
+      ['pt-balance','pt-rate','pt-payment','pt-extra'].forEach(function(id){ document.getElementById(id).value = ''; });
+      document.getElementById('pt-results').classList.remove('active');
+      document.getElementById('pt-scenarios').style.display = 'none';
+      currentResult = null;
+    };
+
+    window.exportPayoff = function(){
+      if(!currentResult) return;
+      var text = 'Payoff Timeline Report\nGenerated: ' + currentResult.date + '\n\n' +
+        'Balance: ' + fmt(currentResult.balance) + '\n' +
+        'Rate: ' + currentResult.rate + '%\n' +
+        'Payment: ' + fmt2(currentResult.payment) + '/mo\n' +
+        'Extra: ' + fmt2(currentResult.extra) + '/mo\n' +
+        'Payoff Date: ' + currentResult.extraDate + '\n' +
+        'Interest Saved: ' + fmt2(currentResult.saved) + '\n';
+      var blob = new Blob([text], {type: 'text/plain'});
+      var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'payoff-timeline-report.txt'; a.click();
+    };
+
+    renderHistory();
+
+    fetch('../articles.json').then(function(r){ return r.json(); }).then(function(data){
+      var container = document.getElementById('pt-related');
+      if(!container || !Array.isArray(data) || data.length === 0) return;
+      var articles = data.slice(0, 3);
+      var html = '';
+      articles.forEach(function(a){
+        var excerpt = (a.excerpt || '').substring(0, 100);
+        if(excerpt.length >= 100) excerpt += '...';
+        html += '<a href="../blog/' + a.slug + '.html" class="lct-article-card"><div class="lct-article-card-inner" style="pointer-events:none;"><img src="../images/blog/' + a.slug + '.jpg" alt="' + a.title + '" loading="lazy" width="400" height="225" style="pointer-events:none;"><div class="lct-article-card-content"><div class="lct-article-card-category">' + a.category + '</div><h3 class="lct-article-card-title" style="pointer-events:none;">' + a.title + '</h3><p class="lct-article-card-excerpt" style="pointer-events:none;">' + excerpt + '</p><div class="lct-article-card-meta" style="pointer-events:none;">' + a.date + '</div></div></div></a>';
+      });
+      container.innerHTML = html;
+    }).catch(function(e){ console.error('Related articles failed:', e); });
+  })();
+  </script>
+</body>
+</html>
