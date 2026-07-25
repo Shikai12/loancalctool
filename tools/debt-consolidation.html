@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debt Consolidation Calculator — Compare & Save</title>
+  <meta name="description" content="Compare your current debt payments vs a consolidation loan. See the real math, not the marketing. No sign-up. All data stays in your browser.">
+  <meta name="author" content="James Whitmore">
+  <link rel="canonical" href="https://loancalctool.org/tools/debt-consolidation.html">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <meta property="og:title" content="Debt Consolidation Calculator — Compare & Save">
+  <meta property="og:description" content="Compare your current debt payments vs a consolidation loan. See the real math, not the marketing.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://loancalctool.org/tools/debt-consolidation.html">
+  <meta property="og:image" content="https://loancalctool.org/images/og-default.jpg">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Debt Consolidation Calculator">
+  <meta name="twitter:description" content="Compare your current debt payments vs a consolidation loan.">
+  <meta name="twitter:image" content="https://loancalctool.org/images/og-default.jpg">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Debt Consolidation Calculator",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Any",
+    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+    "author": {"@type": "Person", "name": "James Whitmore", "url": "https://loancalctool.org/about.html"}
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://loancalctool.org/"},
+      {"@type": "ListItem", "position": 2, "name": "Tools", "item": "https://loancalctool.org/tools/"},
+      {"@type": "ListItem", "position": 3, "name": "Debt Consolidation", "item": "https://loancalctool.org/tools/debt-consolidation.html"}
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .lct-tool-layout-f { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 768px) { .lct-tool-layout-f { grid-template-columns: 1fr; } }
+    .lct-debt-list { list-style: none; padding: 0; margin: 0; }
+    .lct-debt-item { display: grid; grid-template-columns: 1fr 100px 100px 80px; gap: 8px; align-items: center; margin-bottom: 10px; }
+    .lct-debt-item input { font-size: 14px; padding: 10px 12px; border: 1px solid var(--lct-border); border-radius: 8px; }
+    .lct-debt-item button { background: var(--lct-danger); color: white; border: none; border-radius: 6px; padding: 8px; cursor: pointer; font-size: 12px; }
+    .lct-consol-card { background: var(--lct-card-bg); border-radius: var(--lct-radius); padding: 24px; border: 2px solid var(--lct-border); }
+    .lct-consol-card h3 { font-size: 18px; margin-bottom: 16px; }
+    .lct-consol-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--lct-border); font-size: 15px; }
+    .lct-consol-row .val { font-weight: 700; }
+    .lct-savings-highlight { background: linear-gradient(135deg, var(--lct-success), #16a34a); color: white; padding: 20px; border-radius: var(--lct-radius); text-align: center; margin: 20px 0; }
+    .lct-savings-highlight h2 { font-size: 28px; margin-bottom: 4px; }
+    .lct-history-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 16px; }
+    .lct-history-table th, .lct-history-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--lct-border); }
+    .lct-history-table th { font-weight: 600; color: var(--lct-text-light); font-size: 12px; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+
+  <header class="lct-header">
+    <nav class="lct-nav">
+      <a href="../index.html" class="lct-logo">Loan Calc Tool</a>
+      <button class="lct-menu-toggle" aria-label="Toggle menu" onclick="document.querySelector('.lct-nav-links').classList.toggle('active')">☰</button>
+      <div class="lct-nav-links">
+        <a href="../index.html">Home</a>
+        <a href="../tools/index.html">Tools</a>
+        <a href="../blog/index.html">Blog</a>
+        <a href="../about.html">About</a>
+        <a href="../contact.html">Contact</a>
+        <a href="../faq.html">FAQ</a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="lct-breadcrumb lct-container">
+    <a href="../index.html">Home</a><span>/</span><a href="../tools/index.html">Tools</a><span>/</span><span>Debt Consolidation</span>
+  </div>
+
+  <div class="lct-ad-slot" data-ad-slot="tool_top">
+    <div class="ad-placeholder">Tool Top Ad — Loading...</div>
+  </div>
+
+  <main class="lct-container" style="padding: 40px 0;">
+    <div class="lct-tool-page">
+      <div class="lct-tool-page-header">
+        <h1 class="lct-tool-page-title">Debt Consolidation Calculator</h1>
+        <p class="lct-tool-page-desc">Add up your current debts. Then see what a consolidation loan would cost. Compare total interest, monthly payment, and payoff time.</p>
+      </div>
+
+      <div class="lct-tool-layout-f">
+        <div>
+          <h3 style="font-size: 18px; margin-bottom: 12px;">Your Current Debts</h3>
+          <ul class="lct-debt-list" id="dc-debt-list">
+            <li class="lct-debt-item">
+              <input type="text" placeholder="Credit card 1" value="Credit card 1">
+              <input type="number" placeholder="Balance" class="dc-balance" min="0" step="100">
+              <input type="number" placeholder="APR %" class="dc-apr" min="0" max="50" step="0.1">
+              <button onclick="this.parentElement.remove()">Remove</button>
+            </li>
+            <li class="lct-debt-item">
+              <input type="text" placeholder="Credit card 2" value="Credit card 2">
+              <input type="number" placeholder="Balance" class="dc-balance" min="0" step="100">
+              <input type="number" placeholder="APR %" class="dc-apr" min="0" max="50" step="0.1">
+              <button onclick="this.parentElement.remove()">Remove</button>
+            </li>
+          </ul>
+          <button class="lct-btn-small lct-btn-compare" style="margin-top: 8px;" onclick="addDebtRow()">+ Add Debt</button>
+
+          <h3 style="font-size: 18px; margin: 24px 0 12px;">Consolidation Loan Offer</h3>
+          <div class="lct-form-row">
+            <div class="lct-form-group">
+              <label class="lct-form-label">Rate (% APR)</label>
+              <input type="number" class="lct-form-input" id="dc-rate" placeholder="10.5" min="0.1" step="0.1">
+            </div>
+            <div class="lct-form-group">
+              <label class="lct-form-label">Term (months)</label>
+              <input type="number" class="lct-form-input" id="dc-term" placeholder="48" min="6" max="360">
+            </div>
+          </div>
+          <div class="lct-form-group">
+            <label class="lct-form-label">Origination Fee (%)</label>
+            <input type="number" class="lct-form-input" id="dc-fee" placeholder="0" min="0" max="10" step="0.5">
+          </div>
+          <button class="lct-btn-calculate" style="margin-top: 16px;" onclick="calculateConsolidation()">Compare</button>
+          <button class="lct-btn-small lct-btn-delete" style="margin-top: 12px; width: 100%;" onclick="resetConsolidation()">Reset / Clear</button>
+        </div>
+
+        <div>
+          <div class="lct-results" id="dc-results">
+            <div class="lct-savings-highlight">
+              <h2 id="dc-res-savings">$0</h2>
+              <p>Total savings with consolidation</p>
+            </div>
+            <div class="lct-consol-card" id="dc-card-current">
+              <h3>Current Situation</h3>
+              <div class="lct-consol-row"><span>Total Balance</span><span class="val" id="dc-cur-balance">$0</span></div>
+              <div class="lct-consol-row"><span>Min Monthly Payment</span><span class="val" id="dc-cur-payment">$0</span></div>
+              <div class="lct-consol-row"><span>Total Interest (min pay)</span><span class="val" id="dc-cur-interest">$0</span></div>
+              <div class="lct-consol-row"><span>Years to Payoff</span><span class="val" id="dc-cur-years">0</span></div>
+            </div>
+            <div class="lct-consol-card" id="dc-card-consol">
+              <h3>Consolidation Loan</h3>
+              <div class="lct-consol-row"><span>Loan Amount</span><span class="val" id="dc-con-balance">$0</span></div>
+              <div class="lct-consol-row"><span>Monthly Payment</span><span class="val" id="dc-con-payment">$0</span></div>
+              <div class="lct-consol-row"><span>Total Interest</span><span class="val" id="dc-con-interest">$0</span></div>
+              <div class="lct-consol-row"><span>Origination Fee</span><span class="val" id="dc-con-fee">$0</span></div>
+              <div class="lct-consol-row"><span>Total Cost</span><span class="val" id="dc-con-total">$0</span></div>
+              <div class="lct-consol-row"><span>Payoff Time</span><span class="val" id="dc-con-years">0 yr</span></div>
+            </div>
+            <div class="lct-chart-container">
+              <canvas id="dc-chart" width="400" height="250"></canvas>
+            </div>
+            <div style="margin-top: 16px;">
+              <button class="lct-btn-small lct-btn-export" onclick="exportConsolidation()">Export Report</button>
+              <button class="lct-btn-small lct-btn-compare" style="margin-left: 8px;" onclick="saveConsolidation()">Save to History</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lct-tool-history" id="dc-history" style="display:none; margin-top: 32px;">
+        <h3>History</h3>
+        <table class="lct-history-table" id="dc-history-table">
+          <thead><tr><th>Date</th><th>Current Cost</th><th>Consol Cost</th><th>Savings</th><th></th></tr></thead>
+          <tbody id="dc-history-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="lct-container">
+    <div class="lct-ad-slot" data-ad-slot="tool_bottom">
+      <div class="ad-placeholder">Tool Bottom Ad — Loading...</div>
+    </div>
+  </div>
+
+
+  <section class="lct-container" style="padding-bottom: 40px;">
+    <div class="lct-tool-page" style="max-width: 800px; margin: 0 auto;">
+      <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 16px; color: var(--lct-text);">How It Works</h2>
+      <div style="font-size: 16px; line-height: 1.8; color: var(--lct-text-light);">
+        <p>Add each of your current debts with balance and APR. Then enter the consolidation loan offer. The calculator simulates your current minimum-payment strategy versus the consolidation loan, showing total interest, payoff time, and net savings.</p>
+<p><strong>Practical tip:</strong> Consolidation only works if you stop adding to the original debts. Close or freeze the old cards after consolidation. Also watch out for origination fees on the new loan — they can eat into your savings.</p>
+<p><strong>Privacy note:</strong> All calculations happen in your browser. Nothing is sent to our servers.</p>
+      </div>
+    </div>
+  </section>
+  <section class="lct-container" style="padding-bottom: 60px;">
+      <!-- Tool Middle Ad -->
+  <div class="lct-container">
+    <div class="lct-ad-slot" id="tool_middle" data-ad-slot="tool_middle">
+      <div class="ad-placeholder">Tool Middle Ad — Loading...</div>
+    </div>
+  </div>
+
+<h2 class="lct-section-title">Related Articles</h2>
+    <div class="lct-article-grid" id="dc-related"></div>
+  </section>
+
+  <footer class="lct-footer">
+    <div class="lct-footer-grid">
+      <div class="lct-footer-col">
+        <h4>Tools</h4>
+        <ul>
+          <li><a href="../tools/loan-payment.html">Loan Payment</a></li>
+          <li><a href="../tools/interest-comparison.html">Interest Comparison</a></li>
+          <li><a href="../tools/total-cost.html">Total Cost</a></li>
+          <li><a href="../tools/payoff-timeline.html">Payoff Timeline</a></li>
+          <li><a href="../tools/prepayment-savings.html">Prepayment Savings</a></li>
+          <li><a href="../tools/debt-consolidation.html">Debt Consolidation</a></li>
+        </ul>
+      </div>
+      <div class="lct-footer-col">
+        <h4>Pages</h4>
+        <ul>
+          <li><a href="../about.html">About Us</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+          <li><a href="../faq.html">FAQ</a></li>
+          <li><a href="../privacy.html">Privacy Policy</a></li>
+          <li><a href="../terms.html">Terms of Use</a></li>
+          <li><a href="../disclaimer.html">Disclaimer</a></li>
+          <li><a href="../disclosure.html">Disclosure</a></li>
+          <li><a href="../sitemap.html">Sitemap</a></li>
+        </ul>
+      </div>
+      <div class="lct-footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../tools/index.html">Tools</a></li>
+          <li><a href="../blog/index.html">Blog</a></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+          <li><a href="../faq.html">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="lct-footer-copy">
+      <p>Copyright 2026 Loan Calc Tool. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../ads-loader.js"></script>
+  <script>
+  (function(){
+    var STORAGE_KEY = 'lct_debt_consolidation_history';
+    var currentResult = null;
+
+    function fmt(n){ return '$' + n.toLocaleString('en-US', {maximumFractionDigits: 0}); }
+    function fmt2(n){ return '$' + n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
+
+    window.addDebtRow = function(){
+      var li = document.createElement('li'); li.className = 'lct-debt-item';
+      li.innerHTML = '<input type="text" placeholder="Debt name"><input type="number" placeholder="Balance" class="dc-balance" min="0" step="100"><input type="number" placeholder="APR %" class="dc-apr" min="0" max="50" step="0.1"><button onclick="this.parentElement.remove()">Remove</button>';
+      document.getElementById('dc-debt-list').appendChild(li);
+    };
+
+    function calcMinPayment(balance, apr){
+      var r = apr / 100 / 12;
+      return Math.max(balance * 0.02, balance * r + 25);
+    }
+
+    function simulateDebts(debts){
+      var totalBalance = 0, totalMinPayment = 0, totalInterest = 0, months = 0;
+      var simDebts = debts.map(function(d){ return {balance: d.balance, apr: d.apr, minPay: calcMinPayment(d.balance, d.apr)}; });
+      simDebts.forEach(function(d){ totalBalance += d.balance; totalMinPayment += d.minPay; });
+      var current = simDebts.map(function(d){ return {balance: d.balance, apr: d.apr}; });
+      while(current.some(function(d){ return d.balance > 0.01; }) && months < 600){
+        months++;
+        current.forEach(function(d){
+          if(d.balance <= 0) return;
+          var r = d.apr / 100 / 12;
+          var interest = d.balance * r;
+          var minPay = calcMinPayment(d.balance, d.apr);
+          var principal = minPay - interest;
+          if(principal > d.balance) principal = d.balance;
+          d.balance -= principal;
+          totalInterest += interest;
+        });
+      }
+      return { totalBalance: totalBalance, totalMinPayment: totalMinPayment, totalInterest: totalInterest, months: months };
+    }
+
+    window.calculateConsolidation = function(){
+      var debts = [];
+      document.querySelectorAll('#dc-debt-list .lct-debt-item').forEach(function(item){
+        var bal = parseFloat(item.querySelector('.dc-balance').value) || 0;
+        var apr = parseFloat(item.querySelector('.dc-apr').value) || 0;
+        if(bal > 0) debts.push({balance: bal, apr: apr});
+      });
+      var rate = parseFloat(document.getElementById('dc-rate').value) || 0;
+      var term = parseInt(document.getElementById('dc-term').value) || 0;
+      var feePct = parseFloat(document.getElementById('dc-fee').value) || 0;
+      if(debts.length === 0 || rate <= 0 || term <= 0) return;
+
+      var current = simulateDebts(debts);
+      var totalBal = current.totalBalance;
+      var fee = totalBal * feePct / 100;
+      var r = rate / 100 / 12;
+      var monthly = r === 0 ? totalBal / term : totalBal * r / (1 - Math.pow(1 + r, -term));
+      var totalInterest = monthly * term - totalBal;
+      var totalCost = totalBal + totalInterest + fee;
+      var savings = current.totalInterest - totalInterest - fee;
+
+      document.getElementById('dc-cur-balance').textContent = fmt(totalBal);
+      document.getElementById('dc-cur-payment').textContent = fmt2(current.totalMinPayment);
+      document.getElementById('dc-cur-interest').textContent = fmt2(current.totalInterest);
+      document.getElementById('dc-cur-years').textContent = (current.months / 12).toFixed(1) + ' yr';
+      document.getElementById('dc-con-balance').textContent = fmt(totalBal);
+      document.getElementById('dc-con-payment').textContent = fmt2(monthly);
+      document.getElementById('dc-con-interest').textContent = fmt2(totalInterest);
+      document.getElementById('dc-con-fee').textContent = fmt2(fee);
+      document.getElementById('dc-con-total').textContent = fmt2(totalCost);
+      document.getElementById('dc-con-years').textContent = (term / 12).toFixed(1) + ' yr';
+      document.getElementById('dc-res-savings').textContent = fmt2(savings);
+      document.getElementById('dc-res-savings').style.color = savings >= 0 ? 'white' : '#fecaca';
+      document.getElementById('dc-results').classList.add('active');
+
+      currentResult = { debts: debts, currentInterest: current.totalInterest, currentMonths: current.months, rate: rate, term: term, fee: fee, monthly: monthly, totalInterest: totalInterest, totalCost: totalCost, savings: savings, date: new Date().toLocaleDateString() };
+
+      drawChart(current.totalInterest, totalInterest, fee);
+    };
+
+    function drawChart(curInterest, conInterest, fee){
+      var canvas = document.getElementById('dc-chart');
+      var ctx = canvas.getContext('2d');
+      var w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      var maxVal = Math.max(curInterest, conInterest + fee);
+      if(maxVal === 0) return;
+      var barW = 70, gap = 60, startX = (w - 3*barW - 2*gap) / 2;
+      var scale = (h - 80) / maxVal;
+      var items = [
+        {label: 'Current', val: curInterest, color: '#f59e0b'},
+        {label: 'Consolidation', val: conInterest, color: '#2563eb'},
+        {label: 'Fee', val: fee, color: '#dc2626'}
+      ];
+      items.forEach(function(item, i){
+        var x = startX + i * (barW + gap);
+        var bh = item.val * scale;
+        ctx.fillStyle = item.color;
+        ctx.fillRect(x, h - 40 - bh, barW, bh);
+        ctx.fillStyle = '#1e293b'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(item.label, x + barW/2, h - 15);
+        ctx.fillStyle = '#64748b'; ctx.font = '12px sans-serif';
+        ctx.fillText(fmt2(item.val), x + barW/2, h - 45 - bh);
+      });
+    }
+
+    window.saveConsolidation = function(){
+      if(!currentResult) return;
+      var hist = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      hist.unshift(currentResult);
+      if(hist.length > 10) hist.pop();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(hist));
+      renderHistory();
+    };
+
+    function renderHistory(){
+      var hist = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      var el = document.getElementById('dc-history');
+      var tbody = document.getElementById('dc-history-body');
+      if(hist.length === 0){ el.style.display = 'none'; return; }
+      el.style.display = 'block';
+      var html = '';
+      hist.forEach(function(h, i){
+        html += '<tr><td>' + h.date + '</td><td>' + fmt2(h.currentInterest) + '</td><td>' + fmt2(h.totalCost) + '</td><td>' + fmt2(h.savings) + '</td><td><button class="lct-btn-small lct-btn-delete" onclick="deleteHistory(' + i + ')">Delete</button></td></tr>';
+      });
+      tbody.innerHTML = html;
+    }
+
+    window.deleteHistory = function(idx){
+      var hist = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      hist.splice(idx, 1);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(hist));
+      renderHistory();
+    };
+
+    window.resetConsolidation = function(){
+      document.getElementById('dc-debt-list').innerHTML = '<li class="lct-debt-item"><input type="text" placeholder="Credit card 1" value="Credit card 1"><input type="number" placeholder="Balance" class="dc-balance" min="0" step="100"><input type="number" placeholder="APR %" class="dc-apr" min="0" max="50" step="0.1"><button onclick="this.parentElement.remove()">Remove</button></li><li class="lct-debt-item"><input type="text" placeholder="Credit card 2" value="Credit card 2"><input type="number" placeholder="Balance" class="dc-balance" min="0" step="100"><input type="number" placeholder="APR %" class="dc-apr" min="0" max="50" step="0.1"><button onclick="this.parentElement.remove()">Remove</button></li>';
+      ['dc-rate','dc-term','dc-fee'].forEach(function(id){ document.getElementById(id).value = ''; });
+      document.getElementById('dc-results').classList.remove('active');
+      currentResult = null;
+    };
+
+    window.exportConsolidation = function(){
+      if(!currentResult) return;
+      var text = 'Debt Consolidation Report\nGenerated: ' + currentResult.date + '\n\n' +
+        'CURRENT DEBTS\n';
+      currentResult.debts.forEach(function(d, i){ text += 'Debt ' + (i+1) + ': ' + fmt(d.balance) + ' @ ' + d.apr + '%\n'; });
+      text += '\nTotal Current Interest: ' + fmt2(currentResult.currentInterest) + '\n\n' +
+        'CONSOLIDATION LOAN\nRate: ' + currentResult.rate + '%\nTerm: ' + currentResult.term + ' mo\nFee: ' + fmt2(currentResult.fee) + '\nMonthly: ' + fmt2(currentResult.monthly) + '\nTotal Interest: ' + fmt2(currentResult.totalInterest) + '\nTotal Cost: ' + fmt2(currentResult.totalCost) + '\n\n' +
+        'SAVINGS: ' + fmt2(currentResult.savings) + '\n';
+      var blob = new Blob([text], {type: 'text/plain'});
+      var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'debt-consolidation-report.txt'; a.click();
+    };
+
+    renderHistory();
+
+    fetch('../articles.json').then(function(r){ return r.json(); }).then(function(data){
+      var container = document.getElementById('dc-related');
+      if(!container || !Array.isArray(data) || data.length === 0) return;
+      var articles = data.slice(0, 3);
+      var html = '';
+      articles.forEach(function(a){
+        var excerpt = (a.excerpt || '').substring(0, 100);
+        if(excerpt.length >= 100) excerpt += '...';
+        html += '<a href="../blog/' + a.slug + '.html" class="lct-article-card"><div class="lct-article-card-inner" style="pointer-events:none;"><img src="../images/blog/' + a.slug + '.jpg" alt="' + a.title + '" loading="lazy" width="400" height="225" style="pointer-events:none;"><div class="lct-article-card-content"><div class="lct-article-card-category">' + a.category + '</div><h3 class="lct-article-card-title" style="pointer-events:none;">' + a.title + '</h3><p class="lct-article-card-excerpt" style="pointer-events:none;">' + excerpt + '</p><div class="lct-article-card-meta" style="pointer-events:none;">' + a.date + '</div></div></div></a>';
+      });
+      container.innerHTML = html;
+    }).catch(function(e){ console.error('Related articles failed:', e); });
+  })();
+  </script>
+</body>
+</html>
