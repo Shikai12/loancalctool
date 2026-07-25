@@ -1,0 +1,13 @@
+{
+  "domain": "loancalctool.org",
+  "name": "Loan Calc Tool",
+  "css_prefix": "lct",
+  "language": "en",
+  "charset": "UTF-8",
+  "author": "James Whitmore",
+  "description": "Free personal loan calculators, debt consolidation tools, and APR comparison resources. No sign-up required.",
+  "keywords": "personal loan calculator, debt consolidation, APR calculator, loan payoff, prepayment savings",
+  "theme_color": "#2563eb",
+  "created_at": "2026-06-09",
+  "version": "1.0"
+}
