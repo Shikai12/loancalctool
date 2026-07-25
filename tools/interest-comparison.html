@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interest Comparison Calculator — APR vs Simple Interest</title>
+  <meta name="description" content="Compare two loan offers side by side. See total cost, monthly payment, and effective APR. No sign-up. All data stays in your browser.">
+  <meta name="author" content="James Whitmore">
+  <link rel="canonical" href="https://loancalctool.org/tools/interest-comparison.html">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <meta property="og:title" content="Interest Comparison Calculator — APR vs Simple Interest">
+  <meta property="og:description" content="Compare two loan offers side by side. See total cost, monthly payment, and effective APR.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://loancalctool.org/tools/interest-comparison.html">
+  <meta property="og:image" content="https://loancalctool.org/images/og-default.jpg">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Interest Comparison Calculator">
+  <meta name="twitter:description" content="Compare two loan offers side by side.">
+  <meta name="twitter:image" content="https://loancalctool.org/images/og-default.jpg">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Interest Comparison Calculator",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Any",
+    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+    "author": {"@type": "Person", "name": "James Whitmore", "url": "https://loancalctool.org/about.html"}
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://loancalctool.org/"},
+      {"@type": "ListItem", "position": 2, "name": "Tools", "item": "https://loancalctool.org/tools/"},
+      {"@type": "ListItem", "position": 3, "name": "Interest Comparison", "item": "https://loancalctool.org/tools/interest-comparison.html"}
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .lct-tool-layout-b { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 768px) { .lct-tool-layout-b { grid-template-columns: 1fr; } }
+    .lct-compare-card { background: var(--lct-card-bg); border-radius: var(--lct-radius); padding: 24px; border: 2px solid var(--lct-border); }
+    .lct-compare-card.winner { border-color: var(--lct-success); background: #f0fdf4; }
+    .lct-compare-card.loser { border-color: var(--lct-danger); background: #fef2f2; }
+    .lct-compare-card h3 { font-size: 18px; margin-bottom: 16px; color: var(--lct-text); }
+    .lct-compare-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--lct-border); font-size: 14px; }
+    .lct-compare-row:last-child { border-bottom: none; }
+    .lct-compare-row .val { font-weight: 700; }
+    .lct-diff-banner { background: linear-gradient(135deg, var(--lct-primary), var(--lct-primary-dark)); color: white; padding: 20px; border-radius: var(--lct-radius); text-align: center; margin: 24px 0; }
+    .lct-diff-banner h2 { font-size: 28px; margin-bottom: 8px; }
+    .lct-history-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 16px; }
+    .lct-history-table th, .lct-history-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--lct-border); }
+    .lct-history-table th { font-weight: 600; color: var(--lct-text-light); font-size: 12px; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+
+  <header class="lct-header">
+    <nav class="lct-nav">
+      <a href="../index.html" class="lct-logo">Loan Calc Tool</a>
+      <button class="lct-menu-toggle" aria-label="Toggle menu" onclick="document.querySelector('.lct-nav-links').classList.toggle('active')">☰</button>
+      <div class="lct-nav-links">
+        <a href="../index.html">Home</a>
+        <a href="../tools/index.html">Tools</a>
+        <a href="../blog/index.html">Blog</a>
+        <a href="../about.html">About</a>
+        <a href="../contact.html">Contact</a>
+        <a href="../faq.html">FAQ</a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="lct-breadcrumb lct-container">
+    <a href="../index.html">Home</a><span>/</span><a href="../tools/index.html">Tools</a><span>/</span><span>Interest Comparison</span>
+  </div>
+
+  <div class="lct-ad-slot" data-ad-slot="tool_top">
+    <div class="ad-placeholder">Tool Top Ad — Loading...</div>
+  </div>
+
+  <main class="lct-container" style="padding: 40px 0;">
+    <div class="lct-tool-page">
+      <div class="lct-tool-page-header">
+        <h1 class="lct-tool-page-title">Interest Comparison Calculator</h1>
+        <p class="lct-tool-page-desc">Compare two loan offers side by side. Enter the amount, rate, term, and fees for each. See which one actually costs less.</p>
+      </div>
+
+      <div class="lct-tool-layout-b">
+        <div class="lct-compare-card" id="card-a">
+          <h3>Offer A</h3>
+          <div class="lct-form-group"><label class="lct-form-label">Loan Amount ($)</label><input type="number" class="lct-form-input" id="ic-a-amount" placeholder="20000" min="100" step="100"></div>
+          <div class="lct-form-row">
+            <div class="lct-form-group"><label class="lct-form-label">Rate (% APR)</label><input type="number" class="lct-form-input" id="ic-a-rate" placeholder="9.5" min="0.1" step="0.1"></div>
+            <div class="lct-form-group"><label class="lct-form-label">Term (months)</label><input type="number" class="lct-form-input" id="ic-a-term" placeholder="48" min="6" max="360"></div>
+          </div>
+          <div class="lct-form-group"><label class="lct-form-label">Origination Fee ($)</label><input type="number" class="lct-form-input" id="ic-a-fee" placeholder="0" min="0" step="50"></div>
+        </div>
+        <div class="lct-compare-card" id="card-b">
+          <h3>Offer B</h3>
+          <div class="lct-form-group"><label class="lct-form-label">Loan Amount ($)</label><input type="number" class="lct-form-input" id="ic-b-amount" placeholder="20000" min="100" step="100"></div>
+          <div class="lct-form-row">
+            <div class="lct-form-group"><label class="lct-form-label">Rate (% APR)</label><input type="number" class="lct-form-input" id="ic-b-rate" placeholder="10.2" min="0.1" step="0.1"></div>
+            <div class="lct-form-group"><label class="lct-form-label">Term (months)</label><input type="number" class="lct-form-input" id="ic-b-term" placeholder="48" min="6" max="360"></div>
+          </div>
+          <div class="lct-form-group"><label class="lct-form-label">Origination Fee ($)</label><input type="number" class="lct-form-input" id="ic-b-fee" placeholder="0" min="0" step="50"></div>
+        </div>
+      </div>
+
+      <button class="lct-btn-calculate" style="margin-top: 24px;" onclick="compareOffers()">Compare Offers</button>
+      <button class="lct-btn-small lct-btn-delete" style="margin-top: 12px; width: 100%;" onclick="resetComparison()">Reset / Clear</button>
+
+      <div class="lct-results" id="ic-results">
+        <div class="lct-diff-banner">
+          <h2 id="ic-diff-amount">$0</h2>
+          <p id="ic-diff-text">Difference in total cost</p>
+        </div>
+        <div class="lct-tool-layout-b">
+          <div class="lct-compare-card" id="res-card-a">
+            <h3>Offer A Results</h3>
+            <div class="lct-compare-row"><span>Monthly Payment</span><span class="val" id="ic-a-payment">$0</span></div>
+            <div class="lct-compare-row"><span>Total Interest</span><span class="val" id="ic-a-interest">$0</span></div>
+            <div class="lct-compare-row"><span>Total Cost</span><span class="val" id="ic-a-total">$0</span></div>
+            <div class="lct-compare-row"><span>Effective APR</span><span class="val" id="ic-a-apr">0%</span></div>
+          </div>
+          <div class="lct-compare-card" id="res-card-b">
+            <h3>Offer B Results</h3>
+            <div class="lct-compare-row"><span>Monthly Payment</span><span class="val" id="ic-b-payment">$0</span></div>
+            <div class="lct-compare-row"><span>Total Interest</span><span class="val" id="ic-b-interest">$0</span></div>
+            <div class="lct-compare-row"><span>Total Cost</span><span class="val" id="ic-b-total">$0</span></div>
+            <div class="lct-compare-row"><span>Effective APR</span><span class="val" id="ic-b-apr">0%</span></div>
+          </div>
+        </div>
+        <div class="lct-chart-container">
+          <canvas id="ic-chart" width="400" height="250"></canvas>
+        </div>
+        <div style="margin-top: 16px;">
+          <button class="lct-btn-small lct-btn-export" onclick="exportComparison()">Export Report</button>
+          <button class="lct-btn-small lct-btn-compare" style="margin-left: 8px;" onclick="saveComparison()">Save to History</button>
+        </div>
+      </div>
+
+      <div class="lct-tool-history" id="ic-history" style="display:none; margin-top: 32px;">
+        <h3>Comparison History</h3>
+        <table class="lct-history-table" id="ic-history-table">
+          <thead><tr><th>Date</th><th>Offer A</th><th>Offer B</th><th>Winner</th><th>Savings</th><th></th></tr></thead>
+          <tbody id="ic-history-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="lct-container">
+    <div class="lct-ad-slot" data-ad-slot="tool_bottom">
+      <div class="ad-placeholder">Tool Bottom Ad — Loading...</div>
+    </div>
+  </div>
+
+
+  <section class="lct-container" style="padding-bottom: 40px;">
+    <div class="lct-tool-page" style="max-width: 800px; margin: 0 auto;">
+      <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 16px; color: var(--lct-text);">How It Works</h2>
+      <div style="font-size: 16px; line-height: 1.8; color: var(--lct-text-light);">
+        <p>Enter two loan offers side by side. The calculator computes the monthly payment, total interest, and effective APR for each. The effective APR includes origination fees, giving you the true cost of borrowing.</p>
+<p><strong>Practical tip:</strong> A lower APR with a high origination fee can cost more than a slightly higher APR with no fee. Always compare total cost, not just the rate. The winner/loser highlighting shows you which offer saves money instantly.</p>
+<p><strong>Privacy note:</strong> All calculations happen in your browser. Nothing is sent to our servers.</p>
+      </div>
+    </div>
+  </section>
+  <section class="lct-container" style="padding-bottom: 60px;">
+      <!-- Tool Middle Ad -->
+  <div class="lct-container">
+    <div class="lct-ad-slot" id="tool_middle" data-ad-slot="tool_middle">
+      <div class="ad-placeholder">Tool Middle Ad — Loading...</div>
+    </div>
+  </div>
+
+<h2 class="lct-section-title">Related Articles</h2>
+    <div class="lct-article-grid" id="ic-related"></div>
+  </section>
+
+  <footer class="lct-footer">
+    <div class="lct-footer-grid">
+      <div class="lct-footer-col">
+        <h4>Tools</h4>
+        <ul>
+          <li><a href="../tools/loan-payment.html">Loan Payment</a></li>
+          <li><a href="../tools/interest-comparison.html">Interest Comparison</a></li>
+          <li><a href="../tools/total-cost.html">Total Cost</a></li>
+          <li><a href="../tools/payoff-timeline.html">Payoff Timeline</a></li>
+          <li><a href="../tools/prepayment-savings.html">Prepayment Savings</a></li>
+          <li><a href="../tools/debt-consolidation.html">Debt Consolidation</a></li>
+        </ul>
+      </div>
+      <div class="lct-footer-col">
+        <h4>Pages</h4>
+        <ul>
+          <li><a href="../about.html">About Us</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+          <li><a href="../faq.html">FAQ</a></li>
+          <li><a href="../privacy.html">Privacy Policy</a></li>
+          <li><a href="../terms.html">Terms of Use</a></li>
+          <li><a href="../disclaimer.html">Disclaimer</a></li>
+          <li><a href="../disclosure.html">Disclosure</a></li>
+          <li><a href="../sitemap.html">Sitemap</a></li>
+        </ul>
+      </div>
+      <div class="lct-footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../tools/index.html">Tools</a></li>
+          <li><a href="../blog/index.html">Blog</a></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+          <li><a href="../faq.html">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="lct-footer-copy">
+      <p>Copyright 2026 Loan Calc Tool. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../ads-loader.js"></script>
+  <script>
+  (function(){
+    var STORAGE_KEY = 'lct_interest_comparison_history';
+    var currentResult = null;
+
+    function fmt(n){ return '$' + n.toLocaleString('en-US', {maximumFractionDigits: 0}); }
+    function fmt2(n){ return '$' + n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
+
+    function calcOffer(P, rate, term, fee){
+      var r = rate / 100 / 12;
+      var monthly = r === 0 ? P / term : P * r / (1 - Math.pow(1 + r, -term));
+      var totalInterest = monthly * term - P;
+      var totalCost = P + totalInterest + fee;
+      var effectiveAPR = fee > 0 ? (totalInterest + fee) / P * 100 / (term / 12) : rate;
+      return { monthly: monthly, interest: totalInterest, total: totalCost, apr: effectiveAPR };
+    }
+
+    window.compareOffers = function(){
+      var a = { P: parseFloat(document.getElementById('ic-a-amount').value)||0, rate: parseFloat(document.getElementById('ic-a-rate').value)||0, term: parseInt(document.getElementById('ic-a-term').value)||0, fee: parseFloat(document.getElementById('ic-a-fee').value)||0 };
+      var b = { P: parseFloat(document.getElementById('ic-b-amount').value)||0, rate: parseFloat(document.getElementById('ic-b-rate').value)||0, term: parseInt(document.getElementById('ic-b-term').value)||0, fee: parseFloat(document.getElementById('ic-b-fee').value)||0 };
+      if(a.P <= 0 || a.term <= 0 || b.P <= 0 || b.term <= 0) return;
+
+      var resA = calcOffer(a.P, a.rate, a.term, a.fee);
+      var resB = calcOffer(b.P, b.rate, b.term, b.fee);
+      var diff = Math.abs(resA.total - resB.total);
+      var winner = resA.total < resB.total ? 'A' : 'B';
+
+      document.getElementById('ic-a-payment').textContent = fmt2(resA.monthly);
+      document.getElementById('ic-a-interest').textContent = fmt2(resA.interest);
+      document.getElementById('ic-a-total').textContent = fmt2(resA.total);
+      document.getElementById('ic-a-apr').textContent = resA.apr.toFixed(2) + '%';
+      document.getElementById('ic-b-payment').textContent = fmt2(resB.monthly);
+      document.getElementById('ic-b-interest').textContent = fmt2(resB.interest);
+      document.getElementById('ic-b-total').textContent = fmt2(resB.total);
+      document.getElementById('ic-b-apr').textContent = resB.apr.toFixed(2) + '%';
+      document.getElementById('ic-diff-amount').textContent = fmt2(diff);
+      document.getElementById('ic-diff-text').textContent = 'Offer ' + winner + ' saves you this much';
+
+      document.getElementById('res-card-a').className = 'lct-compare-card ' + (winner === 'A' ? 'winner' : 'loser');
+      document.getElementById('res-card-b').className = 'lct-compare-card ' + (winner === 'B' ? 'winner' : 'loser');
+      document.getElementById('ic-results').classList.add('active');
+
+      currentResult = { a: a, b: b, resA: resA, resB: resB, winner: winner, diff: diff, date: new Date().toLocaleDateString() };
+
+      drawChart(resA.total, resB.total, resA.interest, resB.interest);
+    };
+
+    function drawChart(ta, tb, ia, ib){
+      var canvas = document.getElementById('ic-chart');
+      var ctx = canvas.getContext('2d');
+      var w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      var maxVal = Math.max(ta, tb);
+      if(maxVal === 0) return;
+      var barW = 60, gap = 40, startX = (w - 2*barW - gap) / 2;
+      var scale = (h - 80) / maxVal;
+      var colors = [['#2563eb', '#1d4ed8'], ['#f59e0b', '#d97706']];
+      [['A', ta, ia], ['B', tb, ib]].forEach(function(item, i){
+        var x = startX + i * (barW + gap);
+        var totalH = item[1] * scale;
+        var intH = item[2] * scale;
+        ctx.fillStyle = colors[i][0]; ctx.fillRect(x, h - 40 - totalH, barW, totalH - intH);
+        ctx.fillStyle = colors[i][1]; ctx.fillRect(x, h - 40 - intH, barW, intH);
+        ctx.fillStyle = '#1e293b'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('Offer ' + item[0], x + barW/2, h - 15);
+      });
+      ctx.fillStyle = '#64748b'; ctx.font = '12px sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText('Blue = Principal | Orange = Interest + Fees', 20, 20);
+    }
+
+    window.saveComparison = function(){
+      if(!currentResult) return;
+      var hist = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      hist.unshift(currentResult);
+      if(hist.length > 10) hist.pop();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(hist));
+      renderHistory();
+    };
+
+    function renderHistory(){
+      var hist = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      var el = document.getElementById('ic-history');
+      var tbody = document.getElementById('ic-history-body');
+      if(hist.length === 0){ el.style.display = 'none'; return; }
+      el.style.display = 'block';
+      var html = '';
+      hist.forEach(function(h, i){
+        html += '<tr><td>' + h.date + '</td><td>' + fmt(h.a.P) + ' @ ' + h.a.rate + '%</td><td>' + fmt(h.b.P) + ' @ ' + h.b.rate + '%</td><td>Offer ' + h.winner + '</td><td>' + fmt2(h.diff) + '</td><td><button class="lct-btn-small lct-btn-delete" onclick="deleteHistory(' + i + ')">Delete</button></td></tr>';
+      });
+      tbody.innerHTML = html;
+    }
+
+    window.deleteHistory = function(idx){
+      var hist = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      hist.splice(idx, 1);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(hist));
+      renderHistory();
+    };
+
+    window.resetComparison = function(){
+      ['ic-a-amount','ic-a-rate','ic-a-term','ic-a-fee','ic-b-amount','ic-b-rate','ic-b-term','ic-b-fee'].forEach(function(id){ document.getElementById(id).value = ''; });
+      document.getElementById('ic-results').classList.remove('active');
+      document.getElementById('res-card-a').className = 'lct-compare-card';
+      document.getElementById('res-card-b').className = 'lct-compare-card';
+      currentResult = null;
+    };
+
+    window.exportComparison = function(){
+      if(!currentResult) return;
+      var text = 'Loan Comparison Report\nGenerated: ' + currentResult.date + '\n\n' +
+        'OFFER A\nAmount: ' + fmt(currentResult.a.P) + '\nRate: ' + currentResult.a.rate + '%\nTerm: ' + currentResult.a.term + ' mo\nFee: ' + fmt2(currentResult.a.fee) + '\nMonthly: ' + fmt2(currentResult.resA.monthly) + '\nTotal: ' + fmt2(currentResult.resA.total) + '\n\n' +
+        'OFFER B\nAmount: ' + fmt(currentResult.b.P) + '\nRate: ' + currentResult.b.rate + '%\nTerm: ' + currentResult.b.term + ' mo\nFee: ' + fmt2(currentResult.b.fee) + '\nMonthly: ' + fmt2(currentResult.resB.monthly) + '\nTotal: ' + fmt2(currentResult.resB.total) + '\n\n' +
+        'WINNER: Offer ' + currentResult.winner + '\nSAVINGS: ' + fmt2(currentResult.diff) + '\n';
+      var blob = new Blob([text], {type: 'text/plain'});
+      var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'loan-comparison-report.txt'; a.click();
+    };
+
+    renderHistory();
+
+    fetch('../articles.json').then(function(r){ return r.json(); }).then(function(data){
+      var container = document.getElementById('ic-related');
+      if(!container || !Array.isArray(data) || data.length === 0) return;
+      var articles = data.slice(0, 3);
+      var html = '';
+      articles.forEach(function(a){
+        var excerpt = (a.excerpt || '').substring(0, 100);
+        if(excerpt.length >= 100) excerpt += '...';
+        html += '<a href="../blog/' + a.slug + '.html" class="lct-article-card"><div class="lct-article-card-inner" style="pointer-events:none;"><img src="../images/blog/' + a.slug + '.jpg" alt="' + a.title + '" loading="lazy" width="400" height="225" style="pointer-events:none;"><div class="lct-article-card-content"><div class="lct-article-card-category">' + a.category + '</div><h3 class="lct-article-card-title" style="pointer-events:none;">' + a.title + '</h3><p class="lct-article-card-excerpt" style="pointer-events:none;">' + excerpt + '</p><div class="lct-article-card-meta" style="pointer-events:none;">' + a.date + '</div></div></div></a>';
+      });
+      container.innerHTML = html;
+    }).catch(function(e){ console.error('Related articles failed:', e); });
+  })();
+  </script>
+</body>
+</html>
