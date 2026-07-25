@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ — Loan Calc Tool</title>
+  <meta name="description" content="Frequently asked questions about Loan Calc Tool. Privacy, accuracy, data usage, and more.">
+  <link rel="canonical" href="https://loancalctool.org/faq.html">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+  <meta property="og:title" content="FAQ — Loan Calc Tool">
+  <meta property="og:description" content="Frequently asked questions about Loan Calc Tool.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://loancalctool.org/faq.html">
+  <meta property="og:image" content="https://loancalctool.org/images/og-default.jpg">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://loancalctool.org/"},
+      {"@type": "ListItem", "position": 2, "name": "FAQ", "item": "https://loancalctool.org/faq.html"}
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .lct-faq-item { background: white; border-radius: 12px; margin-bottom: 16px; border: 1px solid var(--lct-border); overflow: hidden; }
+    .lct-faq-question { padding: 20px 24px; cursor: pointer; font-weight: 600; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s; }
+    .lct-faq-question:hover { background: #f8fafc; }
+    .lct-faq-question::after { content: '+'; font-size: 20px; color: var(--lct-primary); transition: transform 0.3s; }
+    .lct-faq-item.active .lct-faq-question::after { transform: rotate(45deg); }
+    .lct-faq-answer { padding: 0 24px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; color: #64748b; line-height: 1.7; }
+    .lct-faq-item.active .lct-faq-answer { padding: 0 24px 24px; max-height: 500px; }
+  </style>
+</head>
+<body>
+
+  <header class="lct-header">
+    <nav class="lct-nav">
+      <a href="index.html" class="lct-logo">Loan Calc Tool</a>
+      <button class="lct-menu-toggle" aria-label="Toggle menu" onclick="document.querySelector('.lct-nav-links').classList.toggle('active')">☰</button>
+      <div class="lct-nav-links">
+        <a href="index.html">Home</a>
+        <a href="tools/index.html">Tools</a>
+        <a href="blog/index.html">Blog</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="faq.html">FAQ</a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="lct-breadcrumb lct-container">
+    <a href="index.html">Home</a><span>/</span><span>FAQ</span>
+  </div>
+
+  <main class="lct-container" style="max-width: 800px; padding: 60px 0;">
+    <h1 style="font-size: 36px; margin-bottom: 32px;">Frequently Asked Questions</h1>
+
+    <div class="lct-faq-item">
+      <div class="lct-faq-question" onclick="this.parentElement.classList.toggle('active')">Is my data really private?</div>
+      <div class="lct-faq-answer">Yes. All calculations happen entirely in your browser. We do not collect, store, or transmit any of your loan amounts, interest rates, or personal information. Your data never leaves your device.</div>
+    </div>
+
+    <div class="lct-faq-item">
+      <div class="lct-faq-question" onclick="this.parentElement.classList.toggle('active')">Are these calculators accurate?</div>
+      <div class="lct-faq-answer">Our calculators use standard financial formulas. However, every lender has different fee structures, rounding rules, and terms. Always verify important numbers with your lender before signing anything. The calculators are for estimation and education, not contractual accuracy.</div>
+    </div>
+
+    <div class="lct-faq-item">
+      <div class="lct-faq-question" onclick="this.parentElement.classList.toggle('active')">Do I need to sign up or create an account?</div>
+      <div class="lct-faq-answer">No. Every calculator on this site is free to use without registration, email, or account creation. We do not want your data — we just want you to understand your loans better.</div>
+    </div>
+
+    <div class="lct-faq-item">
+      <div class="lct-faq-question" onclick="this.parentElement.classList.toggle('active')">Do you sell loans or recommend lenders?</div>
+      <div class="lct-faq-answer">No. We do not sell loans, collect leads, or take referral fees from banks or lenders. We may include affiliate links to financial products we believe are genuinely useful, but these do not influence our content or calculator accuracy.</div>
+    </div>
+
+    <div class="lct-faq-item">
+      <div class="lct-faq-question" onclick="this.parentElement.classList.toggle('active')">Who is James Whitmore?</div>
+      <div class="lct-faq-answer">James is an independent financial consultant based in Denver, Colorado. He spent 14 years inside a bank's loan department before quitting to help people avoid the traps he used to sell. He has processed roughly 2,400 loan applications and knows which banks pad fees.</div>
+    </div>
+
+    <div class="lct-faq-item">
+      <div class="lct-faq-question" onclick="this.parentElement.classList.toggle('active')">Can I share my calculator results?</div>
+      <div class="lct-faq-answer">Yes. Most calculators have an export or share feature. You can download your results as a PDF or share a link. Remember that shared links do not contain your personal data — they only store the calculation parameters.</div>
+    </div>
+
+    <div class="lct-faq-item">
+      <div class="lct-faq-question" onclick="this.parentElement.classList.toggle('active')">What browsers are supported?</div>
+      <div class="lct-faq-answer">Our calculators work on all modern browsers including Chrome, Firefox, Safari, and Edge. For the best experience, keep your browser updated. Internet Explorer is not supported.</div>
+    </div>
+
+    <div class="lct-faq-item">
+      <div class="lct-faq-question" onclick="this.parentElement.classList.toggle('active')">How do I contact you?</div>
+      <div class="lct-faq-answer">Email us at <a href="mailto:privacy@loancalctool.org">privacy@loancalctool.org</a>. We read every email, but replies may take a week or two. We do not offer professional consultation or financial advice via email.</div>
+    </div>
+
+  </main>
+
+  <footer class="lct-footer">
+    <div class="lct-footer-grid">
+      <div class="lct-footer-col">
+        <h4>Tools</h4>
+        <ul>
+          <li><a href="tools/loan-payment.html">Loan Payment</a></li>
+          <li><a href="tools/interest-comparison.html">Interest Comparison</a></li>
+          <li><a href="tools/total-cost.html">Total Cost</a></li>
+          <li><a href="tools/payoff-timeline.html">Payoff Timeline</a></li>
+          <li><a href="tools/prepayment-savings.html">Prepayment Savings</a></li>
+          <li><a href="tools/debt-consolidation.html">Debt Consolidation</a></li>
+        </ul>
+      </div>
+      <div class="lct-footer-col">
+        <h4>Pages</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="privacy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Use</a></li>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+          <li><a href="disclosure.html">Disclosure</a></li>
+          <li><a href="sitemap.html">Sitemap</a></li>
+        </ul>
+      </div>
+      <div class="lct-footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="tools/index.html">Tools</a></li>
+          <li><a href="blog/index.html">Blog</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="lct-footer-copy">
+      <p>Copyright 2026 Loan Calc Tool. All rights reserved.</p>
+    </div>
+  </footer>
+
+</body>
+</html>
