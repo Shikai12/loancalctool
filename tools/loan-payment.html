@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loan Payment Calculator — Monthly Payments & Amortization</title>
+  <meta name="description" content="Calculate monthly loan payments, total interest, and full amortization schedule. No sign-up. All data stays in your browser.">
+  <meta name="author" content="James Whitmore">
+  <link rel="canonical" href="https://loancalctool.org/tools/loan-payment.html">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <meta property="og:title" content="Loan Payment Calculator — Monthly Payments & Amortization">
+  <meta property="og:description" content="Calculate monthly loan payments, total interest, and full amortization schedule.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://loancalctool.org/tools/loan-payment.html">
+  <meta property="og:image" content="https://loancalctool.org/images/og-default.jpg">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Loan Payment Calculator">
+  <meta name="twitter:description" content="Calculate monthly loan payments, total interest, and full amortization schedule.">
+  <meta name="twitter:image" content="https://loancalctool.org/images/og-default.jpg">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Loan Payment Calculator",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Any",
+    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+    "author": {"@type": "Person", "name": "James Whitmore", "url": "https://loancalctool.org/about.html"}
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://loancalctool.org/"},
+      {"@type": "ListItem", "position": 2, "name": "Tools", "item": "https://loancalctool.org/tools/"},
+      {"@type": "ListItem", "position": 3, "name": "Loan Payment Calculator", "item": "https://loancalctool.org/tools/loan-payment.html"}
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .lct-tool-layout-a { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+    @media (max-width: 768px) { .lct-tool-layout-a { grid-template-columns: 1fr; } }
+    .lct-amort-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 16px; }
+    .lct-amort-table th, .lct-amort-table td { padding: 8px 12px; text-align: right; border-bottom: 1px solid var(--lct-border); }
+    .lct-amort-table th { text-align: left; font-weight: 600; color: var(--lct-text-light); font-size: 12px; text-transform: uppercase; }
+    .lct-amort-table td:first-child, .lct-amort-table th:first-child { text-align: left; }
+    .lct-amort-scroll { max-height: 320px; overflow-y: auto; border: 1px solid var(--lct-border); border-radius: var(--lct-radius); }
+    .lct-history-card { background: var(--lct-card-bg); padding: 16px; border-radius: var(--lct-radius); border: 1px solid var(--lct-border); margin-bottom: 12px; }
+    .lct-history-card h4 { font-size: 14px; margin-bottom: 8px; }
+    .lct-history-card p { font-size: 13px; color: var(--lct-text-light); margin: 0; }
+  </style>
+</head>
+<body>
+
+  <header class="lct-header">
+    <nav class="lct-nav">
+      <a href="../index.html" class="lct-logo">Loan Calc Tool</a>
+      <button class="lct-menu-toggle" aria-label="Toggle menu" onclick="document.querySelector('.lct-nav-links').classList.toggle('active')">☰</button>
+      <div class="lct-nav-links">
+        <a href="../index.html">Home</a>
+        <a href="../tools/index.html">Tools</a>
+        <a href="../blog/index.html">Blog</a>
+        <a href="../about.html">About</a>
+        <a href="../contact.html">Contact</a>
+        <a href="../faq.html">FAQ</a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="lct-breadcrumb lct-container">
+    <a href="../index.html">Home</a><span>/</span><a href="../tools/index.html">Tools</a><span>/</span><span>Loan Payment</span>
+  </div>
+
+  <div class="lct-ad-slot" data-ad-slot="tool_top">
+    <div class="ad-placeholder">Tool Top Ad — Loading...</div>
+  </div>
+
+  <main class="lct-container" style="padding: 40px 0;">
+    <div class="lct-tool-page">
+      <div class="lct-tool-page-header">
+        <h1 class="lct-tool-page-title">Loan Payment Calculator</h1>
+        <p class="lct-tool-page-desc">Enter your loan amount, interest rate, and term. See your monthly payment, total interest, and a full amortization schedule.</p>
+      </div>
+
+      <div class="lct-tool-layout-a">
+        <div>
+          <div class="lct-form-group">
+            <label class="lct-form-label">Loan Amount ($)</label>
+            <input type="number" class="lct-form-input" id="lp-amount" placeholder="25000" min="100" step="100">
+          </div>
+          <div class="lct-form-row">
+            <div class="lct-form-group">
+              <label class="lct-form-label">Interest Rate (% APR)</label>
+              <input type="number" class="lct-form-input" id="lp-rate" placeholder="7.5" min="0.1" max="50" step="0.1">
+            </div>
+            <div class="lct-form-group">
+              <label class="lct-form-label">Loan Term (months)</label>
+              <input type="number" class="lct-form-input" id="lp-term" placeholder="48" min="6" max="360" step="1">
+            </div>
+          </div>
+          <div class="lct-form-row">
+            <div class="lct-form-group">
+              <label class="lct-form-label">Extra Monthly Payment ($)</label>
+              <input type="number" class="lct-form-input" id="lp-extra" placeholder="0" min="0" step="10">
+            </div>
+            <div class="lct-form-group">
+              <label class="lct-form-label">Origination Fee (%)</label>
+              <input type="number" class="lct-form-input" id="lp-fee" placeholder="0" min="0" max="10" step="0.5">
+            </div>
+          </div>
+          <button class="lct-btn-calculate" onclick="calculateLoanPayment()">Calculate</button>
+          <button class="lct-btn-small lct-btn-delete" style="margin-top: 12px; width: 100%;" onclick="resetLoanPayment()">Reset / Clear</button>
+        </div>
+
+        <div>
+          <div class="lct-results" id="lp-results">
+            <div class="lct-result-grid">
+              <div class="lct-result-card">
+                <div class="lct-result-value" id="lp-res-payment">$0</div>
+                <div class="lct-result-label">Monthly Payment</div>
+              </div>
+              <div class="lct-result-card">
+                <div class="lct-result-value" id="lp-res-total">$0</div>
+                <div class="lct-result-label">Total Cost</div>
+              </div>
+              <div class="lct-result-card">
+                <div class="lct-result-value" id="lp-res-interest">$0</div>
+                <div class="lct-result-label">Total Interest</div>
+              </div>
+              <div class="lct-result-card">
+                <div class="lct-result-value" id="lp-res-fee">$0</div>
+                <div class="lct-result-label">Origination Fee</div>
+              </div>
+              <div class="lct-result-card">
+                <div class="lct-result-value" id="lp-res-months">0</div>
+                <div class="lct-result-label">Months to Payoff</div>
+              </div>
+              <div class="lct-result-card">
+                <div class="lct-result-value" id="lp-res-apr">0%</div>
+                <div class="lct-result-label">Effective APR</div>
+              </div>
+            </div>
+            <div class="lct-chart-container">
+              <canvas id="lp-chart" width="400" height="250"></canvas>
+            </div>
+            <div style="margin-top: 16px;">
+              <button class="lct-btn-small lct-btn-export" onclick="exportLoanPayment()">Export Report</button>
+              <button class="lct-btn-small lct-btn-compare" style="margin-left: 8px;" onclick="saveToHistory()">Save to History</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lct-amort-scroll" id="lp-amort-wrap" style="display:none; margin-top: 24px;">
+        <table class="lct-amort-table" id="lp-amort-table">
+          <thead><tr><th>Month</th><th>Payment</th><th>Principal</th><th>Interest</th><th>Balance</th></tr></thead>
+          <tbody id="lp-amort-body"></tbody>
+        </table>
+      </div>
+
+      <div class="lct-tool-history" id="lp-history" style="display:none; margin-top: 32px;">
+        <h3>Calculation History</h3>
+        <div id="lp-history-list"></div>
+      </div>
+    </div>
+  </main>
+
+  <div class="lct-container">
+    <div class="lct-ad-slot" data-ad-slot="tool_bottom">
+      <div class="ad-placeholder">Tool Bottom Ad — Loading...</div>
+    </div>
+  </div>
+
+
+  <section class="lct-container" style="padding-bottom: 40px;">
+    <div class="lct-tool-page" style="max-width: 800px; margin: 0 auto;">
+      <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 16px; color: var(--lct-text);">How It Works</h2>
+      <div style="font-size: 16px; line-height: 1.8; color: var(--lct-text-light);">
+        <p>This calculator uses the standard amortization formula to compute your monthly payment: <code>P = L[r(1+r)^n]/[(1+r)^n-1]</code>, where <em>L</em> is the loan amount, <em>r</em> is the monthly interest rate, and <em>n</em> is the number of payments.</p>
+<p><strong>Practical tip:</strong> Enter your actual loan offer numbers — including the origination fee percentage — to see your <em>effective</em> APR. Banks often quote the nominal rate, but fees push the real cost higher. Use the extra payment field to see how even $20/month can shave months off your term.</p>
+<p><strong>Privacy note:</strong> All calculations happen in your browser. Nothing is sent to our servers.</p>
+      </div>
+    </div>
+  </section>
+  <section class="lct-container" style="padding-bottom: 60px;">
+      <!-- Tool Middle Ad -->
+  <div class="lct-container">
+    <div class="lct-ad-slot" id="tool_middle" data-ad-slot="tool_middle">
+      <div class="ad-placeholder">Tool Middle Ad — Loading...</div>
+    </div>
+  </div>
+
+<h2 class="lct-section-title">Related Articles</h2>
+    <div class="lct-article-grid" id="lp-related"></div>
+  </section>
+
+  <footer class="lct-footer">
+    <div class="lct-footer-grid">
+      <div class="lct-footer-col">
+        <h4>Tools</h4>
+        <ul>
+          <li><a href="../tools/loan-payment.html">Loan Payment</a></li>
+          <li><a href="../tools/interest-comparison.html">Interest Comparison</a></li>
+          <li><a href="../tools/total-cost.html">Total Cost</a></li>
+          <li><a href="../tools/payoff-timeline.html">Payoff Timeline</a></li>
+          <li><a href="../tools/prepayment-savings.html">Prepayment Savings</a></li>
+          <li><a href="../tools/debt-consolidation.html">Debt Consolidation</a></li>
+        </ul>
+      </div>
+      <div class="lct-footer-col">
+        <h4>Pages</h4>
+        <ul>
+          <li><a href="../about.html">About Us</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+          <li><a href="../faq.html">FAQ</a></li>
+          <li><a href="../privacy.html">Privacy Policy</a></li>
+          <li><a href="../terms.html">Terms of Use</a></li>
+          <li><a href="../disclaimer.html">Disclaimer</a></li>
+          <li><a href="../disclosure.html">Disclosure</a></li>
+          <li><a href="../sitemap.html">Sitemap</a></li>
+        </ul>
+      </div>
+      <div class="lct-footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../tools/index.html">Tools</a></li>
+          <li><a href="../blog/index.html">Blog</a></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+          <li><a href="../faq.html">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="lct-footer-copy">
+      <p>Copyright 2026 Loan Calc Tool. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../ads-loader.js"></script>
+  <script>
+  (function(){
+    var STORAGE_KEY = 'lct_loan_payment_history';
+    var currentResult = null;
+
+    function fmt(n){ return '$' + n.toLocaleString('en-US', {maximumFractionDigits: 0}); }
+    function fmt2(n){ return '$' + n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
+
+    window.calculateLoanPayment = function(){
+      var P = parseFloat(document.getElementById('lp-amount').value) || 0;
+      var r = (parseFloat(document.getElementById('lp-rate').value) || 0) / 100 / 12;
+      var n = parseInt(document.getElementById('lp-term').value) || 0;
+      var extra = parseFloat(document.getElementById('lp-extra').value) || 0;
+      var feePct = parseFloat(document.getElementById('lp-fee').value) || 0;
+      if(P <= 0 || n <= 0) return;
+
+      var fee = P * feePct / 100;
+      var monthly = r === 0 ? P / n : P * r / (1 - Math.pow(1 + r, -n));
+      var totalMonthly = monthly + extra;
+      var balance = P, totalInterest = 0, months = 0;
+      var principalData = [], interestData = [], labels = [];
+      var amortRows = '';
+
+      while(balance > 0.01 && months < 600){
+        months++;
+        var interest = balance * r;
+        var principal = totalMonthly - interest;
+        if(principal > balance) { principal = balance; totalMonthly = interest + principal; }
+        balance -= principal;
+        totalInterest += interest;
+        principalData.push(principal);
+        interestData.push(interest);
+        labels.push('M' + months);
+        amortRows += '<tr><td>' + months + '</td><td>' + fmt2(totalMonthly) + '</td><td>' + fmt2(principal) + '</td><td>' + fmt2(interest) + '</td><td>' + fmt2(Math.max(0, balance)) + '</td></tr>';
+      }
+
+      var totalCost = P + totalInterest + fee;
+      var effectiveAPR = fee > 0 ? (totalInterest + fee) / P * 100 / (months / 12) : 0;
+
+      document.getElementById('lp-res-payment').textContent = fmt2(monthly);
+      document.getElementById('lp-res-total').textContent = fmt2(totalCost);
+      document.getElementById('lp-res-interest').textContent = fmt2(totalInterest);
+      document.getElementById('lp-res-fee').textContent = fmt2(fee);
+      document.getElementById('lp-res-months').textContent = months;
+      document.getElementById('lp-res-apr').textContent = effectiveAPR.toFixed(2) + '%';
+      document.getElementById('lp-results').classList.add('active');
+      document.getElementById('lp-amort-body').innerHTML = amortRows;
+      document.getElementById('lp-amort-wrap').style.display = 'block';
+
+      currentResult = { P: P, rate: (r*1200).toFixed(2), n: n, extra: extra, fee: fee, monthly: monthly, totalInterest: totalInterest, months: months, totalCost: totalCost, date: new Date().toLocaleDateString() };
+
+      drawChart(principalData, interestData, labels);
+    };
+
+    function drawChart(principalData, interestData, labels){
+      var canvas = document.getElementById('lp-chart');
+      var ctx = canvas.getContext('2d');
+      var w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      if(labels.length === 0) return;
+      var maxVal = Math.max.apply(null, principalData.concat(interestData));
+      if(maxVal === 0) return;
+      var barW = Math.max(2, (w - 40) / labels.length - 2);
+      var scale = (h - 60) / maxVal;
+      var colors = ['#2563eb', '#f59e0b'];
+      for(var i = 0; i < labels.length; i++){
+        var x = 20 + i * (barW + 2);
+        var ph = principalData[i] * scale;
+        var ih = interestData[i] * scale;
+        ctx.fillStyle = colors[0]; ctx.fillRect(x, h - 30 - ph, barW / 2, ph);
+        ctx.fillStyle = colors[1]; ctx.fillRect(x + barW / 2, h - 30 - ih, barW / 2, ih);
+      }
+      ctx.fillStyle = '#64748b'; ctx.font = '12px sans-serif';
+      ctx.fillText('Principal (blue) vs Interest (orange)', 20, 20);
+    }
+
+    window.saveToHistory = function(){
+      if(!currentResult) return;
+      var hist = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      hist.unshift(currentResult);
+      if(hist.length > 10) hist.pop();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(hist));
+      renderHistory();
+    };
+
+    function renderHistory(){
+      var hist = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      var el = document.getElementById('lp-history');
+      var list = document.getElementById('lp-history-list');
+      if(hist.length === 0){ el.style.display = 'none'; return; }
+      el.style.display = 'block';
+      var html = '';
+      hist.forEach(function(h, i){
+        html += '<div class="lct-history-card"><h4>#' + (i+1) + ' — ' + h.date + '</h4><p>Loan: ' + fmt(h.P) + ' @ ' + h.rate + '% for ' + h.n + ' mo | Payment: ' + fmt2(h.monthly) + ' | Interest: ' + fmt2(h.totalInterest) + '</p></div>';
+      });
+      list.innerHTML = html;
+    }
+
+    window.resetLoanPayment = function(){
+      ['lp-amount','lp-rate','lp-term','lp-extra','lp-fee'].forEach(function(id){ document.getElementById(id).value = ''; });
+      document.getElementById('lp-results').classList.remove('active');
+      document.getElementById('lp-amort-wrap').style.display = 'none';
+      currentResult = null;
+    };
+
+    window.exportLoanPayment = function(){
+      if(!currentResult) return;
+      var text = 'Loan Payment Report\nGenerated: ' + currentResult.date + '\n\n' +
+        'Loan Amount: ' + fmt(currentResult.P) + '\n' +
+        'Rate: ' + currentResult.rate + '% APR\n' +
+        'Term: ' + currentResult.n + ' months\n' +
+        'Monthly Payment: ' + fmt2(currentResult.monthly) + '\n' +
+        'Total Interest: ' + fmt2(currentResult.totalInterest) + '\n' +
+        'Total Cost: ' + fmt2(currentResult.totalCost) + '\n' +
+        'Payoff Months: ' + currentResult.months + '\n';
+      var blob = new Blob([text], {type: 'text/plain'});
+      var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'loan-payment-report.txt'; a.click();
+    };
+
+    renderHistory();
+
+    // Load related articles
+    fetch('../articles.json').then(function(r){ return r.json(); }).then(function(data){
+      var container = document.getElementById('lp-related');
+      if(!container || !Array.isArray(data) || data.length === 0) return;
+      var articles = data.slice(0, 3);
+      var html = '';
+      articles.forEach(function(a){
+        var excerpt = (a.excerpt || '').substring(0, 100);
+        if(excerpt.length >= 100) excerpt += '...';
+        html += '<a href="../blog/' + a.slug + '.html" class="lct-article-card"><div class="lct-article-card-inner" style="pointer-events:none;"><img src="../images/blog/' + a.slug + '.jpg" alt="' + a.title + '" loading="lazy" width="400" height="225" style="pointer-events:none;"><div class="lct-article-card-content"><div class="lct-article-card-category">' + a.category + '</div><h3 class="lct-article-card-title" style="pointer-events:none;">' + a.title + '</h3><p class="lct-article-card-excerpt" style="pointer-events:none;">' + excerpt + '</p><div class="lct-article-card-meta" style="pointer-events:none;">' + a.date + '</div></div></div></a>';
+      });
+      container.innerHTML = html;
+    }).catch(function(e){ console.error('Related articles failed:', e); });
+  })();
+  </script>
+</body>
+</html>
