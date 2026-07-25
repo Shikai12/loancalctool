@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prepayment Savings Calculator — How Much You Save by Paying Extra</title>
+  <meta name="description" content="Calculate how much you save by paying extra on your loan. Check for prepayment penalties first. No sign-up. All data stays in your browser.">
+  <meta name="author" content="James Whitmore">
+  <link rel="canonical" href="https://loancalctool.org/tools/prepayment-savings.html">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <meta property="og:title" content="Prepayment Savings Calculator — How Much You Save by Paying Extra">
+  <meta property="og:description" content="Calculate how much you save by paying extra on your loan. Check for prepayment penalties first.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://loancalctool.org/tools/prepayment-savings.html">
+  <meta property="og:image" content="https://loancalctool.org/images/og-default.jpg">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Prepayment Savings Calculator">
+  <meta name="twitter:description" content="Calculate how much you save by paying extra on your loan.">
+  <meta name="twitter:image" content="https://loancalctool.org/images/og-default.jpg">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Prepayment Savings Calculator",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Any",
+    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+    "author": {"@type": "Person", "name": "James Whitmore", "url": "https://loancalctool.org/about.html"}
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://loancalctool.org/"},
+      {"@type": "ListItem", "position": 2, "name": "Tools", "item": "https://loancalctool.org/tools/"},
+      {"@type": "ListItem", "position": 3, "name": "Prepayment Savings", "item": "https://loancalctool.org/tools/prepayment-savings.html"}
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .lct-tool-layout-e { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+    @media (max-width: 768px) { .lct-tool-layout-e { grid-template-columns: 1fr; } }
+    .lct-savings-card { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-radius: var(--lct-radius); padding: 24px; border: 2px solid var(--lct-success); text-align: center; }
+    .lct-savings-card h3 { font-size: 14px; color: var(--lct-text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .lct-savings-card .big { font-size: 32px; font-weight: 800; color: var(--lct-success); }
+    .lct-penalty-warning { background: #fef2f2; border: 1px solid #fecaca; border-radius: var(--lct-radius); padding: 16px 20px; color: var(--lct-danger); font-size: 14px; margin: 16px 0; display: none; }
+    .lct-penalty-warning.active { display: block; }
+    .lct-slider-group { margin-bottom: 20px; }
+    .lct-slider-group label { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+    .lct-slider-group input[type="range"] { width: 100%; }
+    .lct-slider-val { color: var(--lct-primary); font-weight: 700; }
+    .lct-history-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 16px; }
+    .lct-history-table th, .lct-history-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--lct-border); }
+    .lct-history-table th { font-weight: 600; color: var(--lct-text-light); font-size: 12px; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+
+  <header class="lct-header">
+    <nav class="lct-nav">
+      <a href="../index.html" class="lct-logo">Loan Calc Tool</a>
+      <button class="lct-menu-toggle" aria-label="Toggle menu" onclick="document.querySelector('.lct-nav-links').classList.toggle('active')">☰</button>
+      <div class="lct-nav-links">
+        <a href="../index.html">Home</a>
+        <a href="../tools/index.html">Tools</a>
+        <a href="../blog/index.html">Blog</a>
+        <a href="../about.html">About</a>
+        <a href="../contact.html">Contact</a>
+        <a href="../faq.html">FAQ</a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="lct-breadcrumb lct-container">
+    <a href="../index.html">Home</a><span>/</span><a href="../tools/index.html">Tools</a><span>/</span><span>Prepayment Savings</span>
+  </div>
+
+  <div class="lct-ad-slot" data-ad-slot="tool_top">
+    <div class="ad-placeholder">Tool Top Ad — Loading...</div>
+  </div>
+
+  <main class="lct-container" style="padding: 40px 0;">
+    <div class="lct-tool-page">
+      <div class="lct-tool-page-header">
+        <h1 class="lct-tool-page-title">Prepayment Savings Calculator</h1>
+        <p class="lct-tool-page-desc">See how much you save by paying extra each month. Includes prepayment penalty check.</p>
+      </div>
+
+      <div class="lct-tool-layout-e">
+        <div>
+          <div class="lct-form-group">
+            <label class="lct-form-label">Current Balance ($)</label>
+            <input type="number" class="lct-form-input" id="ps-balance" placeholder="20000" min="100" step="100">
+          </div>
+          <div class="lct-form-row">
+            <div class="lct-form-group">
+              <label class="lct-form-label">Rate (% APR)</label>
+              <input type="number" class="lct-form-input" id="ps-rate" placeholder="9.5" min="0.1" step="0.1">
+            </div>
+            <div class="lct-form-group">
+              <label class="lct-form-label">Remaining Term (months)</label>
+              <input type="number" class="lct-form-input" id="ps-term" placeholder="36" min="1" max="360">
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="lct-slider-group">
+            <label>Extra Monthly Payment <span class="lct-slider-val" id="ps-extra-val">$50</span></label>
+            <input type="range" id="ps-extra" min="0" max="1000" step="10" value="50" oninput="document.getElementById('ps-extra-val').textContent = '$' + this.value">
+          </div>
+          <div class="lct-form-group">
+            <label class="lct-form-label">Prepayment Penalty (% of remaining balance)</label>
+            <input type="number" class="lct-form-input" id="ps-penalty" placeholder="0" min="0" max="10" step="0.5">
+          </div>
+          <div class="lct-form-group">
+            <label class="lct-form-label">Penalty Applies For (months left)</label>
+            <input type="number" class="lct-form-input" id="ps-penalty-months" placeholder="0" min="0" max="360">
+          </div>
+        </div>
+        <div>
+          <button class="lct-btn-calculate" onclick="calculatePrepayment()">Calculate Savings</button>
+          <button class="lct-btn-small lct-btn-delete" style="margin-top: 12px; width: 100%;" onclick="resetPrepayment()">Reset / Clear</button>
+          <div class="lct-penalty-warning" id="ps-penalty-warning">
+            <strong>Warning:</strong> Your prepayment penalty may exceed your interest savings. Check the numbers below.
+          </div>
+        </div>
+      </div>
+
+      <div class="lct-results" id="ps-results" style="margin-top: 24px;">
+        <div class="lct-tool-layout-e">
+          <div class="lct-savings-card">
+            <h3>Interest Saved</h3>
+            <div class="big" id="ps-res-saved">$0</div>
+          </div>
+          <div class="lct-savings-card" style="background: linear-gradient(135deg, #eff6ff, #dbeafe); border-color: var(--lct-primary);">
+            <h3>Months Shaved Off</h3>
+            <div class="big" id="ps-res-months" style="color: var(--lct-primary);">0</div>
+          </div>
+          <div class="lct-savings-card" style="background: linear-gradient(135deg, #fef2f2, #fee2e2); border-color: var(--lct-danger);">
+            <h3>Penalty Cost</h3>
+            <div class="big" id="ps-res-penalty" style="color: var(--lct-danger);">$0</div>
+          </div>
+        </div>
+        <div class="lct-result-grid" style="margin-top: 24px;">
+          <div class="lct-result-card">
+            <div class="lct-result-value" id="ps-res-net">$0</div>
+            <div class="lct-result-label">Net Savings (after penalty)</div>
+          </div>
+          <div class="lct-result-card">
+            <div class="lct-result-value" id="ps-res-new-date">—</div>
+            <div class="lct-result-label">New Payoff Date</div>
+          </div>
+          <div class="lct-result-card">
+            <div class="lct-result-value" id="ps-res-old-interest">$0</div>
+            <div class="lct-result-label">Original Interest</div>
+          </div>
+          <div class="lct-result-card">
+            <div class="lct-result-value" id="ps-res-new-interest">$0</div>
+            <div class="lct-result-label">New Interest</div>
+          </div>
+        </div>
+        <div class="lct-chart-container">
+          <canvas id="ps-chart" width="400" height="250"></canvas>
+        </div>
+        <div style="margin-top: 16px;">
+          <button class="lct-btn-small lct-btn-export" onclick="exportPrepayment()">Export Report</button>
+          <button class="lct-btn-small lct-btn-compare" style="margin-left: 8px;" onclick="savePrepayment()">Save to History</button>
+        </div>
+      </div>
+
+      <div class="lct-tool-history" id="ps-history" style="display:none; margin-top: 32px;">
+        <h3>History</h3>
+        <table class="lct-history-table" id="ps-history-table">
+          <thead><tr><th>Date</th><th>Balance</th><th>Extra</th><th>Interest Saved</th><th>Penalty</th><th>Net</th><th></th></tr></thead>
+          <tbody id="ps-history-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="lct-container">
+    <div class="lct-ad-slot" data-ad-slot="tool_bottom">
+      <div class="ad-placeholder">Tool Bottom Ad — Loading...</div>
+    </div>
+  </div>
+
+
+  <section class="lct-container" style="padding-bottom: 40px;">
+    <div class="lct-tool-page" style="max-width: 800px; margin: 0 auto;">
+      <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 16px; color: var(--lct-text);">How It Works</h2>
+      <div style="font-size: 16px; line-height: 1.8; color: var(--lct-text-light);">
+        <p>Enter your current balance, rate, and remaining term. Use the slider to adjust your extra monthly payment. The calculator shows interest saved, months shaved off, and — crucially — warns you if your prepayment penalty would exceed those savings.</p>
+<p><strong>Practical tip:</strong> Before making extra payments, call your lender and ask: "Is there a prepayment penalty?" If yes, get the exact terms and enter them here. Some penalties only apply for the first 12-24 months. Timing matters.</p>
+<p><strong>Privacy note:</strong> All calculations happen in your browser. Nothing is sent to our servers.</p>
+      </div>
+    </div>
+  </section>
+  <section class="lct-container" style="padding-bottom: 60px;">
+      <!-- Tool Middle Ad -->
+  <div class="lct-container">
+    <div class="lct-ad-slot" id="tool_middle" data-ad-slot="tool_middle">
+      <div class="ad-placeholder">Tool Middle Ad — Loading...</div>
+    </div>
+  </div>
+
+<h2 class="lct-section-title">Related Articles</h2>
+    <div class="lct-article-grid" id="ps-related"></div>
+  </section>
+
+  <footer class="lct-footer">
+    <div class="lct-footer-grid">
+      <div class="lct-footer-col">
+        <h4>Tools</h4>
+        <ul>
+          <li><a href="../tools/loan-payment.html">Loan Payment</a></li>
+          <li><a href="../tools/interest-comparison.html">Interest Comparison</a></li>
+          <li><a href="../tools/total-cost.html">Total Cost</a></li>
+          <li><a href="../tools/payoff-timeline.html">Payoff Timeline</a></li>
+          <li><a href="../tools/prepayment-savings.html">Prepayment Savings</a></li>
+          <li><a href="../tools/debt-consolidation.html">Debt Consolidation</a></li>
+        </ul>
+      </div>
+      <div class="lct-footer-col">
+        <h4>Pages</h4>
+        <ul>
+          <li><a href="../about.html">About Us</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+          <li><a href="../faq.html">FAQ</a></li>
+          <li><a href="../privacy.html">Privacy Policy</a></li>
+          <li><a href="../terms.html">Terms of Use</a></li>
+          <li><a href="../disclaimer.html">Disclaimer</a></li>
+          <li><a href="../disclosure.html">Disclosure</a></li>
+          <li><a href="../sitemap.html">Sitemap</a></li>
+        </ul>
+      </div>
+      <div class="lct-footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../tools/index.html">Tools</a></li>
+          <li><a href="../blog/index.html">Blog</a></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+          <li><a href="../faq.html">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="lct-footer-copy">
+      <p>Copyright 2026 Loan Calc Tool. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../ads-loader.js"></script>
+  <script>
+  (function(){
+    var STORAGE_KEY = 'lct_prepayment_savings_history';
+    var currentResult = null;
+
+    function fmt(n){ return '$' + n.toLocaleString('en-US', {maximumFractionDigits: 0}); }
+    function fmt2(n){ return '$' + n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
+
+    function simulate(balance, rate, term, extra){
+      var r = rate / 100 / 12;
+      var b = balance, months = 0, totalInterest = 0;
+      var monthly = r === 0 ? balance / term : balance * r / (1 - Math.pow(1 + r, -term));
+      while(b > 0.01 && months < 600){
+        months++;
+        var interest = b * r;
+        var principal = monthly + extra - interest;
+        if(principal > b) { principal = b; }
+        b -= principal;
+        totalInterest += interest;
+      }
+      return { months: months, totalInterest: totalInterest, monthly: monthly };
+    }
+
+    window.calculatePrepayment = function(){
+      var balance = parseFloat(document.getElementById('ps-balance').value) || 0;
+      var rate = parseFloat(document.getElementById('ps-rate').value) || 0;
+      var term = parseInt(document.getElementById('ps-term').value) || 0;
+      var extra = parseInt(document.getElementById('ps-extra').value) || 0;
+      var penaltyPct = parseFloat(document.getElementById('ps-penalty').value) || 0;
+      var penaltyMonths = parseInt(document.getElementById('ps-penalty-months').value) || 0;
+      if(balance <= 0 || term <= 0) return;
+
+      var base = simulate(balance, rate, term, 0);
+      var withExtra = simulate(balance, rate, term, extra);
+      var saved = base.totalInterest - withExtra.totalInterest;
+      var monthsShaved = base.months - withExtra.months;
+      var penalty = penaltyPct > 0 && penaltyMonths > 0 ? balance * penaltyPct / 100 : 0;
+      var net = saved - penalty;
+      var now = new Date();
+      var newDate = new Date(now.getFullYear(), now.getMonth() + withExtra.months, 1);
+
+      document.getElementById('ps-res-saved').textContent = fmt2(saved);
+      document.getElementById('ps-res-months').textContent = monthsShaved;
+      document.getElementById('ps-res-penalty').textContent = fmt2(penalty);
+      document.getElementById('ps-res-net').textContent = fmt2(net);
+      document.getElementById('ps-res-net').style.color = net >= 0 ? 'var(--lct-success)' : 'var(--lct-danger)';
+      document.getElementById('ps-res-new-date').textContent = newDate.toLocaleDateString('en-US', {month: 'short', year: 'numeric'});
+      document.getElementById('ps-res-old-interest').textContent = fmt2(base.totalInterest);
+      document.getElementById('ps-res-new-interest').textContent = fmt2(withExtra.totalInterest);
+      document.getElementById('ps-results').classList.add('active');
+
+      if(penalty > saved){
+        document.getElementById('ps-penalty-warning').classList.add('active');
+      } else {
+        document.getElementById('ps-penalty-warning').classList.remove('active');
+      }
+
+      currentResult = { balance: balance, rate: rate, term: term, extra: extra, saved: saved, penalty: penalty, net: net, monthsShaved: monthsShaved, newDate: newDate.toLocaleDateString(), date: new Date().toLocaleDateString() };
+
+      drawChart(base.months, withExtra.months, base.totalInterest, withExtra.totalInterest, penalty);
+    };
+
+    function drawChart(baseMonths, extraMonths, baseInt, extraInt, penalty){
+      var canvas = document.getElementById('ps-chart');
+      var ctx = canvas.getContext('2d');
+      var w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      var maxM = Math.max(baseMonths, extraMonths);
+      var maxInt = Math.max(baseInt, extraInt);
+      if(maxM === 0 || maxInt === 0) return;
+      var stepX = (w - 40) / maxM;
+      var scaleY = (h - 60) / maxInt;
+
+      ctx.fillStyle = '#e2e8f0';
+      for(var i = 0; i <= maxM; i += 6){
+        var x = 20 + i * stepX;
+        ctx.fillRect(x, 20, 1, h - 50);
+      }
+
+      ctx.fillStyle = 'rgba(245, 158, 11, 0.3)';
+      ctx.fillRect(20, h - 30 - baseInt * scaleY, baseMonths * stepX, baseInt * scaleY);
+      ctx.fillStyle = 'rgba(37, 99, 235, 0.5)';
+      ctx.fillRect(20, h - 30 - extraInt * scaleY, extraMonths * stepX, extraInt * scaleY);
+
+      ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2; ctx.beginPath();
+      ctx.moveTo(20, h - 30); ctx.lineTo(20 + baseMonths * stepX, h - 30 - baseInt * scaleY); ctx.stroke();
+      ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 2; ctx.beginPath();
+      ctx.moveTo(20, h - 30); ctx.lineTo(20 + extraMonths * stepX, h - 30 - extraInt * scaleY); ctx.stroke();
+
+      ctx.fillStyle = '#64748b'; ctx.font = '12px sans-serif';
+      ctx.fillText('Orange = Original | Blue = With Extra Payment', 20, 16);
+    }
+
+    window.savePrepayment = function(){
+      if(!currentResult) return;
+      var hist = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      hist.unshift(currentResult);
+      if(hist.length > 10) hist.pop();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(hist));
+      renderHistory();
+    };
+
+    function renderHistory(){
+      var hist = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      var el = document.getElementById('ps-history');
+      var tbody = document.getElementById('ps-history-body');
+      if(hist.length === 0){ el.style.display = 'none'; return; }
+      el.style.display = 'block';
+      var html = '';
+      hist.forEach(function(h, i){
+        html += '<tr><td>' + h.date + '</td><td>' + fmt(h.balance) + '</td><td>' + fmt(h.extra) + '</td><td>' + fmt2(h.saved) + '</td><td>' + fmt2(h.penalty) + '</td><td>' + fmt2(h.net) + '</td><td><button class="lct-btn-small lct-btn-delete" onclick="deleteHistory(' + i + ')">Delete</button></td></tr>';
+      });
+      tbody.innerHTML = html;
+    }
+
+    window.deleteHistory = function(idx){
+      var hist = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      hist.splice(idx, 1);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(hist));
+      renderHistory();
+    };
+
+    window.resetPrepayment = function(){
+      ['ps-balance','ps-rate','ps-term','ps-penalty','ps-penalty-months'].forEach(function(id){ document.getElementById(id).value = ''; });
+      document.getElementById('ps-extra').value = 50;
+      document.getElementById('ps-extra-val').textContent = '$50';
+      document.getElementById('ps-results').classList.remove('active');
+      document.getElementById('ps-penalty-warning').classList.remove('active');
+      currentResult = null;
+    };
+
+    window.exportPrepayment = function(){
+      if(!currentResult) return;
+      var text = 'Prepayment Savings Report\nGenerated: ' + currentResult.date + '\n\n' +
+        'Balance: ' + fmt(currentResult.balance) + '\n' +
+        'Rate: ' + currentResult.rate + '%\n' +
+        'Term: ' + currentResult.term + ' mo remaining\n' +
+        'Extra Payment: ' + fmt(currentResult.extra) + '/mo\n' +
+        'Interest Saved: ' + fmt2(currentResult.saved) + '\n' +
+        'Penalty: ' + fmt2(currentResult.penalty) + '\n' +
+        'NET SAVINGS: ' + fmt2(currentResult.net) + '\n';
+      var blob = new Blob([text], {type: 'text/plain'});
+      var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'prepayment-savings-report.txt'; a.click();
+    };
+
+    renderHistory();
+
+    fetch('../articles.json').then(function(r){ return r.json(); }).then(function(data){
+      var container = document.getElementById('ps-related');
+      if(!container || !Array.isArray(data) || data.length === 0) return;
+      var articles = data.slice(0, 3);
+      var html = '';
+      articles.forEach(function(a){
+        var excerpt = (a.excerpt || '').substring(0, 100);
+        if(excerpt.length >= 100) excerpt += '...';
+        html += '<a href="../blog/' + a.slug + '.html" class="lct-article-card"><div class="lct-article-card-inner" style="pointer-events:none;"><img src="../images/blog/' + a.slug + '.jpg" alt="' + a.title + '" loading="lazy" width="400" height="225" style="pointer-events:none;"><div class="lct-article-card-content"><div class="lct-article-card-category">' + a.category + '</div><h3 class="lct-article-card-title" style="pointer-events:none;">' + a.title + '</h3><p class="lct-article-card-excerpt" style="pointer-events:none;">' + excerpt + '</p><div class="lct-article-card-meta" style="pointer-events:none;">' + a.date + '</div></div></div></a>';
+      });
+      container.innerHTML = html;
+    }).catch(function(e){ console.error('Related articles failed:', e); });
+  })();
+  </script>
+</body>
+</html>
