@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Calculators — Loan Calc Tool</title>
+  <meta name="description" content="Free personal loan calculators, debt consolidation tools, APR comparison, and payoff timelines. No sign-up required. All data stays in your browser.">
+  <meta name="author" content="James Whitmore">
+  <link rel="canonical" href="https://loancalctool.org/tools/">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <meta property="og:title" content="All Calculators — Loan Calc Tool">
+  <meta property="og:description" content="Free personal loan calculators, debt consolidation tools, APR comparison. No sign-up required.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://loancalctool.org/tools/">
+  <meta property="og:image" content="https://loancalctool.org/images/og-default.jpg">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="All Calculators — Loan Calc Tool">
+  <meta name="twitter:description" content="Free personal loan calculators, debt consolidation tools, APR comparison. No sign-up required.">
+  <meta name="twitter:image" content="https://loancalctool.org/images/og-default.jpg">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "All Calculators — Loan Calc Tool",
+    "url": "https://loancalctool.org/tools/",
+    "description": "Free personal loan calculators and debt management tools collection",
+    "author": {"@type": "Person", "name": "James Whitmore"}
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://loancalctool.org/"},
+      {"@type": "ListItem", "position": 2, "name": "Tools", "item": "https://loancalctool.org/tools/"}
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .lct-tools-hero { background: linear-gradient(135deg, var(--lct-primary), var(--lct-primary-dark)); color: white; padding: 60px 0 40px; text-align: center; }
+    .lct-tools-hero h1 { font-size: 36px; font-weight: 800; margin-bottom: 12px; }
+    .lct-tools-hero p { font-size: 18px; opacity: 0.9; max-width: 600px; margin: 0 auto; }
+    .lct-tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin: 40px 0; }
+    .lct-tool-card-wide { background: var(--lct-card-bg); border-radius: var(--lct-radius); padding: 32px; box-shadow: var(--lct-shadow); border: 1px solid var(--lct-border); transition: var(--lct-transition); display: block; text-decoration: none; color: inherit; cursor: pointer; }
+    .lct-tool-card-wide:hover { transform: translateY(-4px); box-shadow: var(--lct-shadow-hover); border-color: var(--lct-primary); }
+    .lct-tool-card-wide * { pointer-events: none; }
+    .lct-tool-card-wide .lct-tool-icon { width: 56px; height: 56px; background: linear-gradient(135deg, var(--lct-primary), var(--lct-primary-dark)); border-radius: var(--lct-radius); display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 20px; color: white; }
+    .lct-tool-card-wide .lct-tool-name { font-size: 20px; font-weight: 700; margin-bottom: 8px; color: var(--lct-text); }
+    .lct-tool-card-wide .lct-tool-desc { font-size: 15px; color: var(--lct-text-light); line-height: 1.5; margin-bottom: 16px; }
+    .lct-tool-card-wide .lct-tool-meta { display: flex; gap: 16px; font-size: 13px; color: var(--lct-text-light); }
+  </style>
+</head>
+<body>
+
+  <header class="lct-header">
+    <nav class="lct-nav">
+      <a href="../index.html" class="lct-logo">Loan Calc Tool</a>
+      <button class="lct-menu-toggle" aria-label="Toggle menu" onclick="document.querySelector('.lct-nav-links').classList.toggle('active')">☰</button>
+      <div class="lct-nav-links">
+        <a href="../index.html">Home</a>
+        <a href="../tools/index.html">Tools</a>
+        <a href="../blog/index.html">Blog</a>
+        <a href="../about.html">About</a>
+        <a href="../contact.html">Contact</a>
+        <a href="../faq.html">FAQ</a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="lct-breadcrumb lct-container">
+    <a href="../index.html">Home</a><span>/</span><span>Tools</span>
+  </div>
+
+  <div class="lct-ad-slot" id="tool_top" data-ad-slot="tool_top">
+    <div class="ad-placeholder">Tool Top Ad — Loading...</div>
+  </div>
+
+  <main>
+<section class="lct-tools-hero">
+    <div class="lct-container">
+      <h1>6 Free Calculators</h1>
+      <p>All data stays in your browser. No sign-up. No data collection. Just honest math.</p>
+    </div>
+  </section>
+
+  <section class="lct-container" style="padding: 40px 0;">
+    <div class="lct-tools-grid">
+
+      <a href="loan-payment.html" class="lct-tool-card-wide">
+        <div class="lct-tool-icon">💰</div>
+        <div class="lct-tool-name">Loan Payment Calculator</div>
+        <div class="lct-tool-desc">Calculate monthly payments, total interest, and full amortization schedule for any loan amount. Includes extra payment and origination fee analysis.</div>
+        <div class="lct-tool-meta"><span>⚡ Instant</span><span>🔒 Private</span><span>📊 Chart</span></div>
+      </a>
+
+      <a href="interest-comparison.html" class="lct-tool-card-wide">
+        <div class="lct-tool-icon">📊</div>
+        <div class="lct-tool-name">Interest Comparison</div>
+        <div class="lct-tool-desc">Compare two loan offers side by side. See total cost, monthly payment, and effective APR. Winner and loser highlighted automatically.</div>
+        <div class="lct-tool-meta"><span>⚡ Instant</span><span>🔒 Private</span><span>📊 Chart</span></div>
+      </a>
+
+      <a href="total-cost.html" class="lct-tool-card-wide">
+        <div class="lct-tool-icon">🧮</div>
+        <div class="lct-tool-name">Total Cost Breakdown</div>
+        <div class="lct-tool-desc">Add up every fee, charge, and hidden cost. See what your loan really costs with a pie chart breakdown of principal, interest, and fees.</div>
+        <div class="lct-tool-meta"><span>⚡ Instant</span><span>🔒 Private</span><span>📊 Chart</span></div>
+      </a>
+
+      <a href="payoff-timeline.html" class="lct-tool-card-wide">
+        <div class="lct-tool-icon">📅</div>
+        <div class="lct-tool-name">Payoff Timeline</div>
+        <div class="lct-tool-desc">Find your exact payoff date. See how extra payments accelerate your freedom with scenario comparison and balance-over-time charts.</div>
+        <div class="lct-tool-meta"><span>⚡ Instant</span><span>🔒 Private</span><span>📊 Chart</span></div>
+      </a>
+
+      <a href="prepayment-savings.html" class="lct-tool-card-wide">
+        <div class="lct-tool-icon">⚡</div>
+        <div class="lct-tool-name">Prepayment Savings</div>
+        <div class="lct-tool-desc">Calculate how much you save by paying extra. Includes prepayment penalty check with warning when penalty exceeds savings.</div>
+        <div class="lct-tool-meta"><span>⚡ Instant</span><span>🔒 Private</span><span>📊 Chart</span></div>
+      </a>
+
+      <a href="debt-consolidation.html" class="lct-tool-card-wide">
+        <div class="lct-tool-icon">🔗</div>
+        <div class="lct-tool-name">Debt Consolidation</div>
+        <div class="lct-tool-desc">Compare your current debt payments vs a consolidation loan. Add multiple debts, see total savings, and export a full report.</div>
+        <div class="lct-tool-meta"><span>⚡ Instant</span><span>🔒 Private</span><span>📊 Chart</span></div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- TOOLS_ARTICLES_START -->
+
+
+
+
+
+
+
+  <section class="lct-container" style="padding-bottom: 60px;">
+    <h2 class="lct-section-title">Latest from the Blog</h2>
+
+    <div class="lct-ad-slot" id="tool_middle" data-ad-slot="tool_middle">
+      <div class="ad-placeholder">Tool Middle Ad — Loading...</div>
+    </div>
+    <div class="lct-article-grid" id="tools-latest-articles">
+<a href="../blog/credit-score-costing-thousands.html" class="lct-article-card">
+  <div class="lct-article-card-inner" style="pointer-events:none;">
+    <img src="../images/blog/credit-score-costing-thousands.jpg" alt="Why Your Credit Score Is Costing You Thousands — Loan Calc Tool" loading="lazy" width="400" height="225" style="pointer-events:none;">
+    <div class="lct-article-card-content">
+      <div class="lct-article-card-category">Loan Fees</div>
+      <h3 class="lct-article-card-title" style="pointer-events:none;">Why Your Credit Score Is Costing You Thousands — Loan Calc Tool</h3>
+      <p class="lct-article-card-excerpt" style="pointer-events:none;">A 50-point credit score difference can cost you thousands on a personal loan. Here's the real math.</p>
+      <div class="lct-article-card-meta" style="pointer-events:none;">June 06, 2026</div>
+    </div>
+  </div>
+</a>
+<a href="../blog/balance-transfer-vs-personal-loan.html" class="lct-article-card">
+  <div class="lct-article-card-inner" style="pointer-events:none;">
+    <img src="../images/blog/balance-transfer-vs-personal-loan.jpg" alt="Balance Transfer vs. Personal Loan: Which Saves You More? — Loan Calc Tool" loading="lazy" width="400" height="225" style="pointer-events:none;">
+    <div class="lct-article-card-content">
+      <div class="lct-article-card-category">Loan Fees</div>
+      <h3 class="lct-article-card-title" style="pointer-events:none;">Balance Transfer vs. Personal Loan: Which Saves You More? — Loan Calc Tool</h3>
+      <p class="lct-article-card-excerpt" style="pointer-events:none;">Comparing balance transfer cards and personal loans for credit card debt payoff. Real numbers, real story.</p>
+      <div class="lct-article-card-meta" style="pointer-events:none;">June 03, 2026</div>
+    </div>
+  </div>
+</a>
+<a href="../blog/debt-settlement-walk-away.html" class="lct-article-card">
+  <div class="lct-article-card-inner" style="pointer-events:none;">
+    <img src="../images/blog/debt-settlement-walk-away.jpg" alt="Why I Told a Client to Walk Away From Debt Settlement — Loan Calc Tool" loading="lazy" width="400" height="225" style="pointer-events:none;">
+    <div class="lct-article-card-content">
+      <div class="lct-article-card-category">Loan Fees</div>
+      <h3 class="lct-article-card-title" style="pointer-events:none;">Why I Told a Client to Walk Away From Debt Settlement — Loan Calc Tool</h3>
+      <p class="lct-article-card-excerpt" style="pointer-events:none;">Debt settlement companies promise relief but often destroy your credit. Here's what actually works.</p>
+      <div class="lct-article-card-meta" style="pointer-events:none;">May 31, 2026</div>
+    </div>
+  </div>
+</a>
+<a href="../blog/monthly-payment-illusion.html" class="lct-article-card">
+  <div class="lct-article-card-inner" style="pointer-events:none;">
+    <img src="../images/blog/monthly-payment-illusion.jpg" alt="The Monthly Payment Illusion Banks Use to Trick You — Loan Calc Tool" loading="lazy" width="400" height="225" style="pointer-events:none;">
+    <div class="lct-article-card-content">
+      <div class="lct-article-card-category">Loan Fees</div>
+      <h3 class="lct-article-card-title" style="pointer-events:none;">The Monthly Payment Illusion Banks Use to Trick You — Loan Calc Tool</h3>
+      <p class="lct-article-card-excerpt" style="pointer-events:none;">Banks stretch loan terms to make monthly payments look smaller. Here's why that costs you thousands.</p>
+      <div class="lct-article-card-meta" style="pointer-events:none;">May 28, 2026</div>
+    </div>
+  </div>
+</a>
+<a href="../blog/fed-rate-cut-consolidation.html" class="lct-article-card">
+  <div class="lct-article-card-inner" style="pointer-events:none;">
+    <img src="../images/blog/fed-rate-cut-consolidation.jpg" alt="Should You Wait for the Fed to Cut Rates Before Consolidating? — Loan Calc Tool" loading="lazy" width="400" height="225" style="pointer-events:none;">
+    <div class="lct-article-card-content">
+      <div class="lct-article-card-category">Loan Fees</div>
+      <h3 class="lct-article-card-title" style="pointer-events:none;">Should You Wait for the Fed to Cut Rates Before Consolidating? — Loan Calc Tool</h3>
+      <p class="lct-article-card-excerpt" style="pointer-events:none;">Fed rate decisions affect personal loan rates. Here's when to wait and when to act.</p>
+      <div class="lct-article-card-meta" style="pointer-events:none;">May 25, 2026</div>
+    </div>
+  </div>
+</a>
+<a href="../blog/origination-fee-explained.html" class="lct-article-card">
+  <div class="lct-article-card-inner" style="pointer-events:none;">
+    <img src="../images/blog/origination-fee-explained.jpg" alt="The $800 That Disappeared: Origination Fees Explained — Loan Calc Tool" loading="lazy" width="400" height="225" style="pointer-events:none;">
+    <div class="lct-article-card-content">
+      <div class="lct-article-card-category">Loan Fees</div>
+      <h3 class="lct-article-card-title" style="pointer-events:none;">The $800 That Disappeared: Origination Fees Explained — Loan Calc Tool</h3>
+      <p class="lct-article-card-excerpt" style="pointer-events:none;">Origination fees can eat hundreds off your loan before you even get the money. Here's how they work.</p>
+      <div class="lct-article-card-meta" style="pointer-events:none;">May 22, 2026</div>
+    </div>
+  </div>
+</a>
+    </div>
+  </section>
+
+  </div>
+  
+
+<div class="lct-container">
+    <div class="lct-ad-slot" id="tool_middle" data-ad-slot="tool_middle">
+      <div class="ad-placeholder">Tool Middle Ad — Loading...</div>
+    </div>
+
+
+
+
+
+
+
+<!-- TOOLS_ARTICLES_END -->
+
+  <div class="lct-container">
+    <div class="lct-ad-slot" id="tool_bottom" data-ad-slot="tool_bottom">
+      <div class="ad-placeholder">Tool Bottom Ad — Loading...</div>
+    </div>
+  </div>
+
+  </main>
+<footer class="lct-footer">
+    <div class="lct-footer-grid">
+      <div class="lct-footer-col">
+        <h4>Tools</h4>
+        <ul>
+          <li><a href="loan-payment.html">Loan Payment</a></li>
+          <li><a href="interest-comparison.html">Interest Comparison</a></li>
+          <li><a href="total-cost.html">Total Cost</a></li>
+          <li><a href="payoff-timeline.html">Payoff Timeline</a></li>
+          <li><a href="prepayment-savings.html">Prepayment Savings</a></li>
+          <li><a href="debt-consolidation.html">Debt Consolidation</a></li>
+        </ul>
+      </div>
+      <div class="lct-footer-col">
+        <h4>Pages</h4>
+        <ul>
+          <li><a href="../about.html">About Us</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+          <li><a href="../faq.html">FAQ</a></li>
+          <li><a href="../privacy.html">Privacy Policy</a></li>
+          <li><a href="../terms.html">Terms of Use</a></li>
+          <li><a href="../disclaimer.html">Disclaimer</a></li>
+          <li><a href="../disclosure.html">Disclosure</a></li>
+          <li><a href="../sitemap.html">Sitemap</a></li>
+        </ul>
+      </div>
+      <div class="lct-footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../tools/index.html">Tools</a></li>
+          <li><a href="../blog/index.html">Blog</a></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+          <li><a href="../faq.html">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="lct-footer-copy">
+      <p>Copyright 2026 Loan Calc Tool. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../ads-loader.js"></script>
+</body>
+</html>
